@@ -3,26 +3,24 @@ channels = ["knime", "conda-forge"]
 platforms = ["win-64", "linux-64", "osx-64", "osx-arm64"]
 
 [tasks]
-test = { cmd = "pytest" }
-format = { cmd = "ruff format ." }
 
 [dependencies]
 python = "3.11.*"
-pytest = "*"
-ruff = "*"
 knime-extension = "*"
 knime-python-base = "*"
+knime-python-scripting = ">=5.5.0,<6"
+pandas = ">=2.0.3,<3"
+numpy = ">=1.26.4,<2"
+scipy = ">=1.15.2,<2"
+statsmodels = ">=0.14.4,<0.15"
 
 [feature.build.dependencies]
 python = "3.9.*"
-knime-extension-bundling = "5.6.*"
-
-[feature.debug.dependencies]
-debugpy = "*"
+knime-extension-bundling = "5.5.*"
 
 [feature.build.tasks]
 build = { args = [{ "arg" = "dest", "default" = "./local-update-site" }], cmd = "python ./.pixi/envs/build/bin/build_python_extension.py . {{ dest }}"}
 
 [environments]
 build = {features = ["build"], no-default-feature = true}
-debug = {features = ["debug"]}
+
