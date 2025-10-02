@@ -1,0 +1,26 @@
+value,dataset_name,description,expected_decision,mean,std,n
+0.7783610761666377,normal_small,"Standard normal N(0,1), small sample (n=25)",Do not reject normality,0.04383406889453609,0.9316099077085034,25
+-0.5511857163285334,normal_small,"Standard normal N(0,1), small sample (n=25)",Do not reject normality,0.04383406889453609,0.9316099077085034,25
+-0.8181988834223072,normal_small,"Standard normal N(0,1), small sample (n=25)",Do not reject normality,0.04383406889453609,0.9316099077085034,25
+-0.0033744574109520514,normal_small,"Standard normal N(0,1), small sample (n=25)",Do not reject normality,0.04383406889453609,0.9316099077085034,25
+-0.17018462252492844,normal_small,"Standard normal N(0,1), small sample (n=25)",Do not reject normality,0.04383406889453609,0.9316099077085034,25
+-0.4532280493272752,normal_small,"Standard normal N(0,1), small sample (n=25)",Do not reject normality,0.04383406889453609,0.9316099077085034,25
+0.6963874474567154,normal_small,"Standard normal N(0,1), small sample (n=25)",Do not reject normality,0.04383406889453609,0.9316099077085034,25
+0.9553052085705108,normal_small,"Standard normal N(0,1), small sample (n=25)",Do not reject normality,0.04383406889453609,0.9316099077085034,25
+0.08840688629184734,normal_small,"Standard normal N(0,1), small sample (n=25)",Do not reject normality,0.04383406889453609,0.9316099077085034,25
+1.4775300810552616,normal_small,"Standard normal N(0,1), small sample (n=25)",Do not reject normality,0.04383406889453609,0.9316099077085034,25
+-1.141689114133505,normal_small,"Standard normal N(0,1), small sample (n=25)",Do not reject normality,0.04383406889453609,0.9316099077085034,25
+-0.19365945927971812,normal_small,"Standard normal N(0,1), small sample (n=25)",Do not reject normality,0.04383406889453609,0.9316099077085034,25
+-0.7168223206028049,normal_small,"Standard normal N(0,1), small sample (n=25)",Do not reject normality,0.04383406889453609,0.9316099077085034,25
+-1.86653661707306,normal_small,"Standard normal N(0,1), small sample (n=25)",Do not reject normality,0.04383406889453609,0.9316099077085034,25
+-0.08268068584269925,normal_small,"Standard normal N(0,1), small sample (n=25)",Do not reject normality,0.04383406889453609,0.9316099077085034,25
+-0.12174750838328353,normal_small,"Standard normal N(0,1), small sample (n=25)",Do not reject normality,0.04383406889453609,0.9316099077085034,25
+1.513449743242131,normal_small,"Standard normal N(0,1), small sample (n=25)",Do not reject normality,0.04383406889453609,0.9316099077085034,25
+0.6308116845547775,normal_small,"Standard normal N(0,1), small sample (n=25)",Do not reject normality,0.04383406889453609,0.9316099077085034,25
+-1.024186824329205,normal_small,"Standard normal N(0,1), small sample (n=25)",Do not reject normality,0.04383406889453609,0.9316099077085034,25
+1.8540925663341883,normal_small,"Standard normal N(0,1), small sample (n=25)",Do not reject normality,0.04383406889453609,0.9316099077085034,25
+1.221033695525353,normal_small,"Standard normal N(0,1), small sample (n=25)",Do not reject normality,0.04383406889453609,0.9316099077085034,25
+0.5820977034686158,normal_small,"Standard normal N(0,1), small sample (n=25)",Do not reject normality,0.04383406889453609,0.9316099077085034,25
+-0.22648409884983187,normal_small,"Standard normal N(0,1), small sample (n=25)",Do not reject normality,0.04383406889453609,0.9316099077085034,25
+-0.9594392367234795,normal_small,"Standard normal N(0,1), small sample (n=25)",Do not reject normality,0.04383406889453609,0.9316099077085034,25
+-0.3722067760710529,normal_small,"Standard normal N(0,1), small sample (n=25)",Do not reject normality,0.04383406889453609,0.9316099077085034,25
