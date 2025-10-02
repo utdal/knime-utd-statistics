@@ -3,6 +3,8 @@ channels = ["knime", "conda-forge"]
 platforms = ["win-64", "linux-64", "osx-64", "osx-arm64"]
 
 [tasks]
+test = { cmd = "pytest" }
+format = { cmd = "ruff format ." }
 
 [dependencies]
 python = "3.11.*"
@@ -13,6 +15,7 @@ pandas = ">=2.0.3,<3"
 numpy = ">=1.26.4,<2"
 scipy = ">=1.15.2,<2"
 statsmodels = ">=0.14.4,<0.15"
+ruff = "*"
 
 [feature.build.dependencies]
 python = "3.9.*"
