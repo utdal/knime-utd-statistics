@@ -4,6 +4,6 @@ KNIME Extension entry point.
 This module imports and registers the unified normality testing node.
 """
 
-from .NormalityNode import NormalityTestsNode
+from .normality_node import NormalityTestsNode
 
 __all__ = ["NormalityTestsNode"]

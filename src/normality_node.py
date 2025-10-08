@@ -9,7 +9,7 @@ with minimal parameters and automatic data validation.
 import knime.extension as knext
 import numpy as np
 import pandas as pd
-from .normalityTests import run_ad_test, run_cramer_test
+from .normality_tests import run_ad_test, run_cramer_test
 
 
 # Create normality tests category
