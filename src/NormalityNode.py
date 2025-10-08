@@ -63,9 +63,7 @@ class _NormalityParams:
     icon_path="./icons/icon.png",
     category=normality_category,
 )
-@knext.input_table(
-    name="Input data", description="Table containing the numeric column to test."
-)
+@knext.input_table(name="Input data", description="Table containing the numeric column to test.")
 @knext.output_table(
     name="Results",
     description="Normality test results with statistical decision.",
@@ -91,26 +89,30 @@ class NormalityTestsNode:
         # Column existence check
         if col_name is None:
             raise ValueError("No column selected. Please configure the node and select a numeric data column.")
-        
+
         if col_name not in df.columns:
             raise ValueError(f"Column '{col_name}' not found in input data.")
-        
+
         # Extract column data
         data = df[col_name]
-        
-        # Numeric type check  
+
+        # Numeric type check
         if not pd.api.types.is_numeric_dtype(data):
             raise ValueError(f"Column '{col_name}' must be numeric (int/float). Found: {data.dtype}")
-        
+
         # Null check - REJECT if any nulls present
         if data.isnull().any():
             null_count = data.isnull().sum()
-            raise ValueError(f"Column '{col_name}' contains {null_count} null/missing values. Normality tests require complete data with no missing values.")
-        
+            raise ValueError(
+                f"Column '{col_name}' contains {null_count} null/missing values. Normality tests require complete data with no missing values."
+            )
+
         # Constant data check
         if data.nunique() == 1:
-            raise ValueError(f"Column '{col_name}' contains only constant values ({data.iloc[0]}). Normality tests cannot be performed on constant data.")
-        
+            raise ValueError(
+                f"Column '{col_name}' contains only constant values ({data.iloc[0]}). Normality tests cannot be performed on constant data."
+            )
+
         return data.values  # Return as numpy array
 
     def configure(self, cfg_ctx, input_spec):
@@ -143,15 +145,17 @@ class NormalityTestsNode:
             result = run_cramer_test(data)
 
         # Format results into KNIME table
-        results_df = pd.DataFrame([{
-            "Test": result["test"],
-            "Column Tested": col_name,
-            "Sample Size (n)": np.int32(result["n"]),
-            "Test Statistic": result["statistic"],
-            "P-Value": result["p_value"],
-            "Statistical Decision": result["decision"],
-        }])
+        results_df = pd.DataFrame(
+            [
+                {
+                    "Test": result["test"],
+                    "Column Tested": col_name,
+                    "Sample Size (n)": np.int32(result["n"]),
+                    "Test Statistic": result["statistic"],
+                    "P-Value": result["p_value"],
+                    "Statistical Decision": result["decision"],
+                }
+            ]
+        )
 
         return knext.Table.from_pandas(results_df)
-
-
