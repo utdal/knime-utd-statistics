@@ -1,2 +1,0 @@
-"Test","Column Tested","Sample Size (n)","Test Statistic","P-Value","Significance Level","Statistical Decision","Critical Value"
-"Cramer-von Mises (Normal)","value",300,4.225940610204112,"Not calculated - using critical values",0.05,"Reject normality",0.126
