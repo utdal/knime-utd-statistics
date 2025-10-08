@@ -1,2 +1,0 @@
-"Test","Column Tested","Sample Size (n)","Test Statistic","P-Value","Significance Level","Statistical Decision","Critical Value"
-"Anderson–Darling (Normal)","value",300,197.59819265104505,"Not calculated - using critical values",0.05,"Reject normality",0.787

@@ -9,7 +9,7 @@ long_description: This extension is my first Python extension.
 version: 0.1.0 # Version of this Python node extension
 
 # legal information 
-author: Bobby Test
+author: Ahmed Elghazi / Saad Jamil Ahmed / Rabih Neouchi # Authors of the extension
 vendor: KNIME AG, Zurich, Switzerland
 license_file: LICENSE.TXT # Best practice: put your LICENSE.TXT next to the knime.yml; otherwise you would need to change to path/to/LICENSE.txt
 
