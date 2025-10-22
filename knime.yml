@@ -1,11 +1,8 @@
-# This is the configuration file for your KNIME extension.
-# It is used to define the extension's metadata and configuration.
-
 # Extension metadata
-name: first_extension  # Will be concatenated with the group_id to an ID
-group_id: org.tutorial
-description: My First Extension # Human readable bundle name / description
-long_description: This extension is my first Python extension.
+name: statistical_normality_test  # Will be concatenated with the group_id to an ID
+group_id: edu.utdal
+description: Statistical Normality Test Extension # Human readable bundle name / description
+long_description: This extension implements a statistical normality test.
 version: 0.1.0 # Version of this Python node extension
 
 # legal information 
@@ -17,3 +14,7 @@ license_file: LICENSE.TXT # Best practice: put your LICENSE.TXT next to the knim
 # Python settings 
 pixi_toml_path: pixi.toml # This is necessary for bundling, but not needed during development
 extension_module: ./src # The .py Python module containing the nodes of your extension
+
+bundled_env_name: org_knime_pythonscripting
+feature_dependencies:
+- org.knime.features.pythonscripting

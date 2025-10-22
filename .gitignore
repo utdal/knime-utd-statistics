@@ -219,25 +219,8 @@ local-update-site/
 *.xml.xz
 p2.index
 
-# macOS specific files
-.DS_Store
-.DS_Store?
-._*
-.Spotlight-V100
-.Trashes
-ehthumbs.db
-Thumbs.db
-
-# Project specific temporary/build files
-store.txt
-old.py
 
 # KNIME extension build artifacts
 features/
 plugins/
-
-# Test data and temporary files
-src/testData/*.csv
-*.tmp
-*.temp
 
