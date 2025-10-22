@@ -10,12 +10,7 @@ import knime.extension as knext
 import numpy as np
 import pandas as pd
 from .normality_tests import run_ad_test, run_cramer_test
-from .normality_tests.utils import (
-    test_type_param,
-    input_column_param,
-    alpha_param,
-    TestType
-)
+from .normality_tests.utils import test_type_param, input_column_param, alpha_param, TestType
 
 
 # Create normality tests category
