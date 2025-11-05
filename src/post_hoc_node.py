@@ -17,7 +17,6 @@ from .post_hoc import (
     run_bonferroni_test,
     format_tukey_results_for_knime,
     format_bonferroni_results_for_knime,
-    validate_group_data,
     test_type_param,
     data_column_param,
     group_column_param,
