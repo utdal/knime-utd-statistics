@@ -1,4 +1,4 @@
-edu.utdal.statistical_normality_test: # {group_id}.{name} from the knime.yml
-  src: /Users/ahmedelghazi/Desktop/knime-utd-statistics # Path to folder containing the extension files
-  conda_env_path: /Users/ahmedelghazi/Desktop/knime-utd-statistics/.pixi/envs/default # Path to the Python environment to use (use an absolute path)
+edu.utdal.statistical_normality_test: # {group_id}.{name} from the knime.yml src: C:\Users\Aelgh\knime-utd-statistics # Path to folder containing the extension files conda_env_path: C:\Users\Aelgh\knime-utd-statistics\.pixi\envs\default # Path to the Python environment to use (use an absolute path) debug_mode: true # Optional line, if set to true, it will always use the latest changes of execute/configure, when that method is used within the KNIME Analytics Platform
+  src: C:\Users\Aelgh\knime-utd-statistics # Path to folder containing the extension files
+  conda_env_path: C:\Users\Aelgh\knime-utd-statistics\.pixi\envs\default # Path to the Python environment to use (use an absolute path)
   debug_mode: true # Optional line, if set to true, it will always use the latest changes of execute/configure, when that method is used within the KNIME Analytics Platform
