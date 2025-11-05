@@ -1,3 +1,3 @@
 from .normality_node import NormalityTestsNode
-
-__all__ = ["NormalityTestsNode"]
+from .post_hoc_node import PostHocTestsNode
+__all__ = ["NormalityTestsNode", "PostHocTestsNode"]
