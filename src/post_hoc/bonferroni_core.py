@@ -112,7 +112,7 @@ def run_bonferroni_test(data, groups, alpha=0.05):
 
                 ci_lower = row["Mean Difference"] - margin_error
                 ci_upper = row["Mean Difference"] + margin_error
-            except (ValueError, ZeroDivisionError) as e:
+            except (ValueError, ZeroDivisionError):
                 # Fallback if calculation fails
                 ci_lower = np.nan
                 ci_upper = np.nan
