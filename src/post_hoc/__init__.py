@@ -5,7 +5,7 @@ This package provides ANOVA analysis with Tukey HSD and Holm-Bonferroni correcti
 for pairwise comparisons following significant ANOVA results.
 """
 
-from .anova import run_one_way_anova, format_anova_results_for_knime, validate_anova_data
+from .anova import run_one_way_anova, validate_anova_data
 from .tukey_core import run_tukey_test, format_tukey_results_for_knime
 from .bonferroni_core import run_bonferroni_test, format_bonferroni_results_for_knime
 from .utils import (
