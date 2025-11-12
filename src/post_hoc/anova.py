@@ -123,48 +123,6 @@ def run_one_way_anova(data, groups, alpha=0.05):
     }
 
 
-def format_anova_results_for_knime(anova_output, data_column_name="Data", group_column_name="Group"):
-    """
-    Format ANOVA results for KNIME output table.
-
-    Parameters:
-    -----------
-    anova_output : dict
-        Output from run_one_way_anova function
-    data_column_name : str, default="Data"
-        Name of the dependent variable column for context
-    group_column_name : str, default="Group"
-        Name of the grouping variable column for context
-
-    Returns:
-    --------
-    pd.DataFrame
-        ANOVA results table formatted for KNIME with additional context columns
-    """
-
-    # Get the core ANOVA table
-    anova_df = anova_output["anova_table"].copy()
-
-    # Add context columns for KNIME
-    anova_df.insert(0, "Test Column", data_column_name)
-    anova_df.insert(0, "ID", range(len(anova_df)))
-
-    # Add method and significance information
-    anova_df["Test Method"] = anova_output["test"]
-    anova_df["Significance Level"] = anova_output["alpha"]
-    anova_df["Significant"] = str(anova_output["significant"])
-
-    # Ensure proper data types for KNIME
-    anova_df["ID"] = anova_df["ID"].astype("int32")  # Use int32 for KNIME
-    anova_df["Sum of Squares"] = anova_df["Sum of Squares"].astype(float)
-    anova_df["df"] = anova_df["df"].astype(float)  # Keep as float to allow NaN values
-    anova_df["Mean Square"] = anova_df["Mean Square"].astype(float)
-    anova_df["F"] = anova_df["F"].astype(float)
-    anova_df["p-value"] = anova_df["p-value"].astype(float)
-
-    return anova_df
-
-
 def validate_anova_data(data, groups):
     """
     Validate data for ANOVA analysis requirements.
