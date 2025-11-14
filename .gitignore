@@ -211,7 +211,6 @@ config.yml
 
 # KNIME Extension Development specific files
 # KNIME workflow files (demo/testing)
-*.knwf
 
 # KNIME local update site artifacts (build outputs)
 local-update-site/
