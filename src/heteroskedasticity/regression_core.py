@@ -23,7 +23,7 @@ Think of it like this:
 import numpy as np
 import pandas as pd
 import statsmodels.api as sm
-from typing import Tuple, Dict, List
+from typing import Tuple, List
 from .utils import detect_categorical_columns
 
 

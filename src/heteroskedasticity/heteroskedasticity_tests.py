@@ -31,7 +31,6 @@ Available Tests
 3. Goldfeld-Quandt: Compares variance between sorted subgroups (simple, intuitive)
 """
 
-import numpy as np
 import pandas as pd
 import statsmodels.api as sm
 from statsmodels.stats.diagnostic import het_breuschpagan, het_white, het_goldfeldquandt
