@@ -1,10 +1,3 @@
-"""
-Utility functions and parameters for heteroskedasticity testing and OLS regression.
-
-This module provides parameter definitions, enumerations, and helper functions
-for the Heteroskedasticity Node in KNIME.
-"""
-
 import knime.extension as knext
 import pandas as pd
 from typing import List
@@ -24,26 +17,6 @@ def is_numeric(col: knext.Column) -> bool:
 
 
 def detect_categorical_columns(df: pd.DataFrame, column_names: List[str]) -> List[str]:
-    """
-    Automatically detect which columns should be treated as categorical.
-
-    Categorical columns are identified by their pandas dtype:
-    - object (strings)
-    - category
-    - bool
-
-    Args:
-        df: Input pandas DataFrame
-        column_names: List of column names to check
-
-    Returns:
-        List of column names that are categorical
-
-    Example:
-        >>> df = pd.DataFrame({'age': [25, 30], 'dept': ['Sales', 'IT']})
-        >>> detect_categorical_columns(df, ['age', 'dept'])
-        ['dept']
-    """
     categorical_dtypes = ["object", "category", "bool"]
     categorical_cols = []
 
@@ -56,28 +29,6 @@ def detect_categorical_columns(df: pd.DataFrame, column_names: List[str]) -> Lis
 
 
 def format_p_value(p):
-    """
-    Format p-value to avoid scientific notation (e.g., E-22) in output.
-
-    This function ensures p-values are displayed in a human-readable format:
-    - Very small values (< 0.001) are shown as "< 0.001"
-    - Other values are rounded to 4 decimal places
-    - Handles missing or invalid values gracefully
-
-    Args:
-        p: P-value (float, or potentially NaN or '?')
-
-    Returns:
-        Formatted string representation of the p-value
-
-    Example:
-        >>> format_p_value(0.0456)
-        '0.0456'
-        >>> format_p_value(1.23e-22)
-        '< 0.001'
-        >>> format_p_value(None)
-        '?'
-    """
     # Handle potential nulls or '?' from KNIME
     if pd.isna(p) or p == "?":
         return "?"
@@ -94,13 +45,6 @@ def format_p_value(p):
 
 # Test type enumeration
 class TestType(knext.EnumParameterOptions):
-    """
-    Enumeration of available heteroskedasticity tests.
-
-    Each test checks whether the variance of regression errors is constant
-    (homoskedastic) or changes systematically (heteroskedastic).
-    """
-
     BREUSCH_PAGAN = (
         "Breusch-Pagan",
         "Tests if error variance is related to the predictor variables. Most commonly used test, assumes normally distributed errors.",
@@ -111,12 +55,13 @@ class TestType(knext.EnumParameterOptions):
 
 # Test type parameter
 test_type_param = knext.EnumParameter(
-    label="Heteroskedasticity Test",
+    label="Description",
     description=(
-        "Select which test to use for detecting heteroskedasticity:\n\n"
-        "• Breusch-Pagan: Standard test for most situations\n"
-        "• White: More robust but slower\n"
-        "• Goldfeld-Quandt: Compares variance between groups"
+        "The Heteroskedasticity Tests node checks whether your regression errors have constant variance (homoskedastic) or changing variance (heteroskedastic) - a key assumption in regression analysis. "
+        "When this assumption is violated, your p-values and confidence intervals become unreliable. Choose between three well-established methods:\n\n"
+        "• Breusch-Pagan: Standard test for most situations. Tests if error variance is related to your predictor variables.\n\n"
+        "• White: More general test that doesn't require normally distributed errors. Good for detecting complex patterns.\n\n"
+        "• Goldfeld-Quandt: Compares variance between two groups of your data. Useful when you suspect variance changes with a specific variable."
     ),
     enum=TestType,
     default_value=TestType.BREUSCH_PAGAN.name,

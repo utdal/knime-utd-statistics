@@ -1,31 +1,3 @@
-"""
-Heteroskedasticity Testing Node for KNIME.
-
-This node performs OLS (Ordinary Least Squares) regression and tests for
-heteroskedasticity using one of three statistical tests.
-
-What This Node Does:
---------------------
-1. Takes your data with a target variable (y) and predictor variables (X)
-2. Automatically handles categorical variables by converting them to dummy variables
-3. Fits a regression model: y = β₀ + β₁X₁ + β₂X₂ + ... + error
-4. Tests if the error variance is constant (homoskedastic) or changing (heteroskedastic)
-5. Returns three outputs:
-   - Original data with predictions and residuals
-   - Model summary (coefficients, p-values, R²)
-   - Heteroskedasticity test results
-
-Why It Matters:
-----------------
-OLS regression assumes constant error variance (homoskedasticity).
-If this assumption is violated:
-- Your p-values are unreliable
-- Confidence intervals are wrong
-- Statistical conclusions may be invalid
-
-This node helps you detect and diagnose such problems.
-"""
-
 import knime.extension as knext
 import numpy as np
 import pandas as pd
@@ -41,7 +13,7 @@ from .heteroskedasticity import (
     generate_predictions_residuals,
     extract_model_summary,
     # Parameters and utilities
-    TestType,
+    TestType,  # Enum for test types - needed for .rule() conditions
     test_type_param,
     target_column_param,
     predictor_columns_param,
@@ -54,7 +26,13 @@ from .heteroskedasticity import (
 # Output detail level parameter
 output_detail_param = knext.StringParameter(
     label="Output Detail Level",
-    description="Choose between basic (essential statistics only) or advanced (full statistical details) model summary output.",
+    description=(
+        "Choose how much statistical detail to include in the Model Summary output:\n\n"
+        "• Basic: Easy-to-read format with essential information (coefficients, p-values, R-squared, F-statistic). "
+        "Best for quick interpretation and reporting.\n\n"
+        "• Advanced: Complete statistical output including coefficient types, standard errors, and degrees of freedom. "
+        "Ideal for detailed analysis and academic reporting."
+    ),
     default_value="Advanced",
     enum=["Basic", "Advanced"],
 )
@@ -77,25 +55,30 @@ heteroskedasticity_category = knext.category(
     category=heteroskedasticity_category,
 )
 @knext.input_table(name="Input Data", description="Table containing target and predictor variables for regression analysis.")
-@knext.output_table(name="Data with Predictions", description="Original data with added prediction and residual columns.")
-@knext.output_table(name="Model Summary", description="Regression coefficients, p-values, and model fit statistics.")
-@knext.output_table(name="Heteroskedasticity Test", description="Results of the selected heteroskedasticity test.")
+@knext.output_table(
+    name="Data with Predictions", description="Your target variable with model predictions and residuals (actual minus predicted values)."
+)
+@knext.output_table(
+    name="Model Summary",
+    description=(
+        "Regression results showing how each variable affects your target. Output format depends on your selection between basic and advanced.\n"
+    ),
+)
+@knext.output_table(
+    name="Heteroskedasticity Test",
+    description="Test results showing whether your model has constant error variance. Includes test statistic, p-value, and a clear yes/no indicator for heteroskedasticity detection.",
+)
 class HeteroskedasticityNode:
-    """
-    KNIME node for OLS regression with heteroskedasticity testing.
-
-    This node combines regression modeling with diagnostic testing to help
-    users identify violations of the constant variance assumption.
-    """
-
     # Node parameters
     test_type = test_type_param
     target_column = target_column_param
     predictor_columns = predictor_columns_param
     alpha = alpha_param
-    gq_sort_variable = gq_sort_variable_param
-    gq_split_fraction = gq_split_fraction_param
     output_detail = output_detail_param
+
+    # Goldfeld-Quandt specific parameters - only visible when GQ test is selected
+    gq_sort_variable = gq_sort_variable_param.rule(knext.OneOf(test_type, [TestType.GOLDFELD_QUANDT.name]), knext.Effect.SHOW)
+    gq_split_fraction = gq_split_fraction_param.rule(knext.OneOf(test_type, [TestType.GOLDFELD_QUANDT.name]), knext.Effect.SHOW)
 
     def configure(self, cfg_ctx, input_spec):
         # Output 1: Data with predictions and residuals
@@ -106,23 +89,20 @@ class HeteroskedasticityNode:
         # Output 2: Model summary (coefficient table + metrics)
         # Schema depends on output detail level
         if self.output_detail == "Basic":
-            # Basic mode: simplified output with essential statistics
+            # Simple mode: end-user friendly with essential statistics
             model_summary_cols = [
-                knext.Column(knext.string(), "Variable"),
-                knext.Column(knext.double(), "Coefficient"),
+                knext.Column(knext.string(), "Information"),
+                knext.Column(knext.double(), "Measure"),
                 knext.Column(knext.string(), "P-Value"),
-                knext.Column(knext.string(), "Metric"),
-                knext.Column(knext.double(), "Value"),
             ]
         else:
-            # Advanced mode: full statistical details
+            # Advanced mode: full statistical details with type classification
             model_summary_cols = [
-                knext.Column(knext.string(), "Variable"),
-                knext.Column(knext.double(), "Coefficient"),
+                knext.Column(knext.string(), "Type"),
+                knext.Column(knext.string(), "Information"),
+                knext.Column(knext.double(), "Measure"),
                 knext.Column(knext.double(), "Std Error"),
-                knext.Column(knext.string(), "P>|t|"),
-                knext.Column(knext.string(), "Metric"),
-                knext.Column(knext.double(), "Value"),
+                knext.Column(knext.string(), "P-Value"),
             ]
         model_summary_schema = knext.Schema.from_columns(model_summary_cols)
 
@@ -132,7 +112,6 @@ class HeteroskedasticityNode:
             knext.Column(knext.double(), "Test Statistic"),
             knext.Column(knext.string(), "P-Value"),
             knext.Column(knext.string(), "Heteroskedasticity"),
-            knext.Column(knext.string(), "Interpretation"),
         ]
         test_results_schema = knext.Schema.from_columns(test_results_cols)
 
@@ -194,48 +173,71 @@ class HeteroskedasticityNode:
         # Step 7: Format Output 2 - Model summary
         coef_table, metrics_table = extract_model_summary(model)
 
+        # Extract F-statistic p-value for use in F-statistic row
+        f_pvalue = metrics_table[metrics_table["Metric"] == "Prob (F-statistic)"]["Value"].values[0]
+
         if self.output_detail == "Basic":
-            # Basic mode: simplified output with essential statistics
-            coef_table_simple = coef_table[["Variable", "Coefficient", "P>|t|"]].copy()
-            coef_table_simple.rename(columns={"P>|t|": "P-Value"}, inplace=True)
+            # SIMPLE MODE: End-user friendly with essential statistics
+            # Schema: Information, Measure, P-Value
 
-            # Format P-Value to avoid scientific notation
-            coef_table_simple["P-Value"] = coef_table_simple["P-Value"].apply(format_p_value)
+            # Process coefficients
+            simple_rows = []
+            for _, row in coef_table.iterrows():
+                simple_rows.append({"Information": row["Variable"], "Measure": row["Coefficient"], "P-Value": format_p_value(row["P>|t|"])})
 
-            # Add empty metric columns to coef table
-            coef_table_simple["Metric"] = ""
-            coef_table_simple["Value"] = np.nan
+            # Process key metrics (filtered and ordered)
+            key_metrics = ["R-squared", "Adjusted R-squared", "F-statistic", "No. Observations"]
+            for metric_name in key_metrics:
+                metric_row = metrics_table[metrics_table["Metric"] == metric_name]
+                if not metric_row.empty:
+                    # F-statistic gets the p-value from Prob (F-statistic)
+                    p_val = format_p_value(f_pvalue) if metric_name == "F-statistic" else ""
+                    simple_rows.append({"Information": metric_name, "Measure": metric_row["Value"].values[0], "P-Value": p_val})
 
-            # Filter metrics to only essential ones
-            key_metrics = ["R-squared", "Adjusted R-squared", "F-statistic", "Prob (F-statistic)", "No. Observations"]
-            metrics_table_simple = metrics_table[metrics_table["Metric"].isin(key_metrics)].copy()
+            model_summary = pd.DataFrame(simple_rows)
 
-            # Add empty variable columns to metrics table
-            metrics_table_simple.insert(0, "Variable", "")
-            metrics_table_simple.insert(1, "Coefficient", np.nan)
-            metrics_table_simple.insert(2, "P-Value", np.nan)
-
-            # Combine both tables
-            model_summary = pd.concat([coef_table_simple, metrics_table_simple], ignore_index=True)
         else:
-            # Advanced mode: full statistical details (without t-statistic and confidence intervals)
-            coef_table_advanced = coef_table[["Variable", "Coefficient", "Std Error", "P>|t|"]].copy()
+            # ADVANCED MODE: Full statistical details with type classification
+            # Schema: Type, Information, Measure, Std Error, P-Value
 
-            # Format P>|t| to avoid scientific notation
-            coef_table_advanced["P>|t|"] = coef_table_advanced["P>|t|"].apply(format_p_value)
+            # Process coefficients (Type = "Coefficient")
+            advanced_rows = []
+            for _, row in coef_table.iterrows():
+                advanced_rows.append(
+                    {
+                        "Type": "Coefficient",
+                        "Information": row["Variable"],
+                        "Measure": row["Coefficient"],
+                        "Std Error": row["Std Error"],
+                        "P-Value": format_p_value(row["P>|t|"]),
+                    }
+                )
 
-            # Add empty metric columns to coef table
-            coef_table_advanced["Metric"] = ""
-            coef_table_advanced["Value"] = np.nan
+            # Process metrics with appropriate Type classification (ordered)
+            # Excludes Prob (F-statistic) - its value goes in F-statistic's P-Value
+            advanced_metrics = ["R-squared", "Adjusted R-squared", "F-statistic", "No. Observations", "Df Residuals", "Df Model"]
+            for metric_name in advanced_metrics:
+                metric_row = metrics_table[metrics_table["Metric"] == metric_name]
+                if not metric_row.empty:
+                    # Determine Type based on metric name
+                    if metric_name == "F-statistic":
+                        row_type = "Test statistic"
+                        p_val = format_p_value(f_pvalue)
+                    else:
+                        row_type = "Model statistic"
+                        p_val = ""
 
-            # Add empty variable columns to metrics table
-            metrics_table.insert(0, "Variable", "")
-            metrics_table.insert(1, "Coefficient", np.nan)
-            metrics_table.insert(2, "Std Error", np.nan)
-            metrics_table.insert(3, "P>|t|", np.nan)
+                    advanced_rows.append(
+                        {
+                            "Type": row_type,
+                            "Information": metric_name,
+                            "Measure": metric_row["Value"].values[0],
+                            "Std Error": np.nan,
+                            "P-Value": p_val,
+                        }
+                    )
 
-            # Combine both tables
-            model_summary = pd.concat([coef_table_advanced, metrics_table], ignore_index=True)
+            model_summary = pd.DataFrame(advanced_rows)
 
         # Step 8: Format Output 3 - Test results
         test_results_df = pd.DataFrame(
@@ -245,7 +247,6 @@ class HeteroskedasticityNode:
                     "Test Statistic": test_result["statistic"],
                     "P-Value": test_result["p_value"],
                     "Heteroskedasticity": test_result["is_heteroskedastic"],
-                    "Interpretation": test_result["interpretation"],
                 }
             ]
         )
