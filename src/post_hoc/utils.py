@@ -7,8 +7,8 @@ def is_numeric(col: knext.Column) -> bool:
     return col.ktype in (knext.double(), knext.int32(), knext.int64())
 
 
-def is_categorical(col: knext.Column) -> bool:
-    """Helper function to filter for categorical/string columns."""
+def is_string(col: knext.Column) -> bool:
+    """Helper function to filter for string columns."""
     return col.ktype == knext.string()
 
 
@@ -41,7 +41,7 @@ data_column_param = knext.ColumnParameter(
 group_column_param = knext.ColumnParameter(
     label="Grouping Variable",
     description="Categorical column containing the group assignments.",
-    column_filter=is_categorical,
+    column_filter=is_string,
 )
 
 alpha_param = knext.DoubleParameter(

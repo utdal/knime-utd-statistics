@@ -1,12 +1,12 @@
 # Extension metadata
-name: statistical_normality_test  # Will be concatenated with the group_id to an ID
+name: utd_statistics  # Will be concatenated with the group_id to an ID
 group_id: edu.utdal
-description: Statistical Normality Test Extension # Human readable bundle name / description
-long_description: This extension implements a statistical normality test.
-version: 0.1.0 # Version of this Python node extension
+description: UTD Statistical Analysis Extension # Human readable bundle name / description
+long_description: This extension provides statistical testing tools developed by Ahmed Elghazi and Rabih Neouchi from University of Texas at Dallas.
+version: 1.0.0 # Version of this Python node extension
 
 # legal information 
-author: Ahmed Elghazi / Saad Jamil Ahmed / Rabih Neouchi # Authors of the extension
+author: Ahmed Elghazi / Rabih Neouchi # Authors of the extension
 vendor: KNIME AG, Zurich, Switzerland
 license_file: LICENSE.TXT # Best practice: put your LICENSE.TXT next to the knime.yml; otherwise you would need to change to path/to/LICENSE.txt
 
