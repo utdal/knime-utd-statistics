@@ -9,25 +9,16 @@ with minimal parameters and automatic data validation.
 import knime.extension as knext
 import numpy as np
 import pandas as pd
+from . import utd_category
 from .normality_tests import run_ad_test, run_cramer_test
 from .normality_tests.utils import test_type_param, input_column_param, alpha_param, TestType
-
-
-# Create normality tests category
-normality_category = knext.category(
-    path="/community",
-    level_id="utd_development",
-    name="University of Texas at Dallas Development",
-    description="Statistical Normality Testing Node",
-    icon="./icons/utd.png",
-)
 
 
 @knext.node(
     name="Statistical Normality Tests",
     node_type=knext.NodeType.MANIPULATOR,
-    icon_path="./icons/curve.png",
-    category=normality_category,
+    icon_path="./icons/bell_curve.png",
+    category=utd_category,
 )
 @knext.input_table(name="Input data", description="Table containing the numeric column to test.")
 @knext.output_table(
@@ -36,7 +27,11 @@ normality_category = knext.category(
 )
 class NormalityTestsNode:
     """
-    Simplified normality testing node supporting Anderson-Darling and Cramer-von Mises tests.
+    Tests whether your data follows a normal (bell-shaped) distribution using Anderson-Darling 
+    or Cramer-von Mises methods. Normality is a key assumption in many statistical analyses.
+    
+    This node performs statistical tests to determine if your data follows a normal distribution,
+    which is required for many parametric statistical procedures.
     """
 
     test_type = test_type_param

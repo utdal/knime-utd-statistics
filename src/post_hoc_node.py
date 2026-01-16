@@ -9,6 +9,7 @@ with comprehensive validation and dual input ports.
 import knime.extension as knext
 import numpy as np
 import pandas as pd
+from . import utd_category
 from .post_hoc import (
     run_one_way_anova,
     validate_anova_data,
@@ -24,32 +25,31 @@ from .post_hoc import (
 )
 
 
-# Create post-hoc tests category (same as normality tests)
-post_hoc_category = knext.category(
-    path="/community",
-    level_id="utd_development",
-    name="University of Texas at Dallas Development",
-    description="Statistical Post-Hoc Multiple Comparison Testing Node",
-    icon="./icons/utd.png",
-)
-
-
 @knext.node(
-    name="Post-Hoc Multiple Comparisons",
+    name="Post-Hoc Analysis",
     node_type=knext.NodeType.MANIPULATOR,
-    icon_path="./icons/post_hoc.png",
-    category=post_hoc_category,
+    icon_path="./icons/post_hoc.jpg",
+    category=utd_category,
 )
-@knext.input_table(name="Data", description="Data table with numeric dependent variable and categorical grouping variable.")
+@knext.input_table(name="Input Data", description="Data table with numeric dependent variable and categorical grouping variable.")
 @knext.output_table(
     name="ANOVA Summary",
-    description="Overall ANOVA test results.",
+    description="Output table containing overall ANOVA decision and p-value.",
 )
 @knext.output_table(
     name="Pairwise Details",
-    description="Pairwise post-hoc comparison results (conditional on ANOVA significance).",
+    description="Output table reflecting all pairwise group comparisons.",
 )
 class PostHocTestsNode:
+    """
+    Performs post-hoc multiple comparison tests following significant ANOVA results.
+    
+    This node automatically runs one-way ANOVA first, then conducts pairwise comparisons 
+    using Tukey HSD or Holm-Bonferroni methods if overall differences are significant.
+    
+    When ANOVA shows significant differences between groups, this node identifies which 
+    specific group pairs differ from each other while controlling for multiple comparisons.
+    """
     test_type = test_type_param
     data_column = data_column_param
     group_column = group_column_param
@@ -87,6 +87,31 @@ class PostHocTestsNode:
 
     def configure(self, cfg_ctx, input_spec):
         """Configure the node's two output table schemas."""
+        # Import the filter functions for column type checking
+        from .post_hoc.utils import is_numeric, is_string
+        
+        # Get available columns by type
+        numeric_columns = [col.name for col in input_spec if is_numeric(col)]
+        categorical_columns = [col.name for col in input_spec if is_string(col)]
+        
+        # Auto-preselect rightmost columns if not already selected
+        if self.data_column is None and numeric_columns:
+            self.data_column = numeric_columns[-1]
+        
+        if self.group_column is None and categorical_columns:
+            self.group_column = categorical_columns[-1]
+        
+        # Validate that columns are selected
+        if self.data_column is None:
+            raise knext.InvalidParametersError(
+                "No dependent variable selected. Please select a numeric data column."
+            )
+        
+        if self.group_column is None:
+            raise knext.InvalidParametersError(
+                "No grouping variable selected. Please select a categorical grouping column."
+            )
+        
         # Output Port 1: ANOVA Summary
         # Columns: Tested Variable, Grouping Variable, Significance Level, ANOVA p-Value, Overall Conclusion
         anova_summary_cols = [

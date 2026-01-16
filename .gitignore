@@ -3,6 +3,9 @@ __pycache__/
 *.py[codz]
 *$py.class
 
+# macOS system files
+.DS_Store
+
 # C extensions
 *.so
 
@@ -222,4 +225,6 @@ p2.index
 # KNIME extension build artifacts
 features/
 plugins/
+
+CHANGES.md
 
