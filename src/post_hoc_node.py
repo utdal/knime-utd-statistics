@@ -9,7 +9,6 @@ with comprehensive validation and dual input ports.
 import knime.extension as knext
 import numpy as np
 import pandas as pd
-from . import utd_category
 from .post_hoc import (
     run_one_way_anova,
     validate_anova_data,
@@ -22,6 +21,16 @@ from .post_hoc import (
     group_column_param,
     alpha_param,
     PostHocTestType,
+)
+
+
+# UTD statistical analysis category
+utd_category = knext.category(
+    path="/community",
+    level_id="utd_development",
+    name="University of Texas at Dallas Development",
+    description="Statistical analysis tools developed by the University of Texas at Dallas",
+    icon="./icons/utd.png",
 )
 
 
