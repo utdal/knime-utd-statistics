@@ -43,13 +43,14 @@ from .post_hoc import (
 class PostHocTestsNode:
     """
     Performs post-hoc multiple comparison tests following significant ANOVA results.
-    
-    This node automatically runs one-way ANOVA first, then conducts pairwise comparisons 
+
+    This node automatically runs one-way ANOVA first, then conducts pairwise comparisons
     using Tukey HSD or Holm-Bonferroni methods if overall differences are significant.
-    
-    When ANOVA shows significant differences between groups, this node identifies which 
+
+    When ANOVA shows significant differences between groups, this node identifies which
     specific group pairs differ from each other while controlling for multiple comparisons.
     """
+
     test_type = test_type_param
     data_column = data_column_param
     group_column = group_column_param
@@ -89,29 +90,25 @@ class PostHocTestsNode:
         """Configure the node's two output table schemas."""
         # Import the filter functions for column type checking
         from .post_hoc.utils import is_numeric, is_string
-        
+
         # Get available columns by type
         numeric_columns = [col.name for col in input_spec if is_numeric(col)]
         categorical_columns = [col.name for col in input_spec if is_string(col)]
-        
+
         # Auto-preselect rightmost columns if not already selected
         if self.data_column is None and numeric_columns:
             self.data_column = numeric_columns[-1]
-        
+
         if self.group_column is None and categorical_columns:
             self.group_column = categorical_columns[-1]
-        
+
         # Validate that columns are selected
         if self.data_column is None:
-            raise knext.InvalidParametersError(
-                "No dependent variable selected. Please select a numeric data column."
-            )
-        
+            raise knext.InvalidParametersError("No dependent variable selected. Please select a numeric data column.")
+
         if self.group_column is None:
-            raise knext.InvalidParametersError(
-                "No grouping variable selected. Please select a categorical grouping column."
-            )
-        
+            raise knext.InvalidParametersError("No grouping variable selected. Please select a categorical grouping column.")
+
         # Output Port 1: ANOVA Summary
         # Columns: Tested Variable, Grouping Variable, Significance Level, ANOVA p-Value, Overall Conclusion
         anova_summary_cols = [
