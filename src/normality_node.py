@@ -9,9 +9,18 @@ with minimal parameters and automatic data validation.
 import knime.extension as knext
 import numpy as np
 import pandas as pd
-from . import utd_category
 from .normality_tests import run_ad_test, run_cramer_test
 from .normality_tests.utils import test_type_param, input_column_param, alpha_param, TestType
+
+
+# UTD statistical analysis category
+utd_category = knext.category(
+    path="/community",
+    level_id="utd_development",
+    name="University of Texas at Dallas Development",
+    description="Statistical analysis tools developed by the University of Texas at Dallas",
+    icon="./icons/utd.png",
+)
 
 
 @knext.node(
