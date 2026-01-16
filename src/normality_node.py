@@ -27,9 +27,9 @@ from .normality_tests.utils import test_type_param, input_column_param, alpha_pa
 )
 class NormalityTestsNode:
     """
-    Tests whether your data follows a normal (bell-shaped) distribution using Anderson-Darling 
+    Tests whether your data follows a normal (bell-shaped) distribution using Anderson-Darling
     or Cramer-von Mises methods. Normality is a key assumption in many statistical analyses.
-    
+
     This node performs statistical tests to determine if your data follows a normal distribution,
     which is required for many parametric statistical procedures.
     """
