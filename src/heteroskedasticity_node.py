@@ -23,27 +23,26 @@ from .heteroskedasticity import (
     format_p_value,
 )
 
+
 # Output detail level parameter
 output_detail_param = knext.StringParameter(
     label="Output Detail Level",
     description=(
-        "Choose how much statistical detail to include in the Model Summary output:\n\n"
-        "• Basic: Easy-to-read format with essential information (coefficients, p-values, R-squared, F-statistic). "
-        "Best for quick interpretation and reporting.\n\n"
-        "• Advanced: Complete statistical output including coefficient types, standard errors, and degrees of freedom. "
-        "Ideal for detailed analysis and academic reporting."
+        "Choose how much statistical detail to include in the Model Summary output.\n\n"
+        "• Basic: Easy-to-read output with essential coefficients and key model statistics.\n"
+        "• Advanced: Full statistical detail including coefficient types, standard errors, and degrees of freedom."
     ),
     default_value="Advanced",
     enum=["Basic", "Advanced"],
 )
 
 
-# Create heteroskedasticity category (reuse normality category structure)
-heteroskedasticity_category = knext.category(
+# UTD statistical analysis category
+utd_category = knext.category(
     path="/community",
     level_id="utd_development",
     name="University of Texas at Dallas Development",
-    description="Statistical Analysis Tools",
+    description="Statistical analysis tools developed by the University of Texas at Dallas",
     icon="./icons/utd.png",
 )
 
@@ -52,23 +51,32 @@ heteroskedasticity_category = knext.category(
     name="Heteroskedasticity Tests",
     node_type=knext.NodeType.MANIPULATOR,
     icon_path="./icons/bell_curve.png",
-    category=heteroskedasticity_category,
+    category=utd_category,
 )
-@knext.input_table(name="Input Data", description="Table containing target and predictor variables for regression analysis.")
+@knext.input_table(name="Input Data", description="Data table containing the target variable and predictor variables for regression analysis.")
 @knext.output_table(
-    name="Data with Predictions", description="Your target variable with model predictions and residuals (actual minus predicted values)."
+    name="Data with Predictions",
+    description="Output table containing the target variable, model predictions, and residuals (actual minus predicted values).",
 )
 @knext.output_table(
     name="Model Summary",
-    description=(
-        "Regression results showing how each variable affects your target. Output format depends on your selection between basic and advanced.\n"
-    ),
+    description="Output table containing regression coefficients and key model statistics. Output format depends on your Basic vs Advanced selection.",
 )
 @knext.output_table(
     name="Heteroskedasticity Test",
-    description="Test results showing whether your model has constant error variance. Includes test statistic, p-value, and a clear yes/no indicator for heteroskedasticity detection.",
+    description="Heteroskedasticity test results with test statistic, p-value, and statistical decision.",
 )
 class HeteroskedasticityNode:
+    """
+    Tests whether a regression model shows heteroskedasticity (non-constant error variance).
+
+    This node first fits an ordinary least squares (OLS) regression model from your selected target
+    and predictor variables. It then runs the selected heteroskedasticity test (Breusch-Pagan, White,
+    or Goldfeld-Quandt) to determine whether the model residual variance appears constant.
+
+    Output includes the target variable with predictions/residuals, a regression model summary, and
+    a single-row test result with a clear statistical decision based on your chosen significance level.
+    """
     # Node parameters
     test_type = test_type_param
     target_column = target_column_param
