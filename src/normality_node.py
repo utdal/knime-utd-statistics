@@ -26,8 +26,8 @@ utd_category = knext.category(
 @knext.node(
     name="Statistical Normality Tests",
     node_type=knext.NodeType.MANIPULATOR,
-    icon_path="./icons/bell_curve.png",
-    category=utd_category,
+    icon_path="./icons/curve.jpg",
+    category=normality_category,
 )
 @knext.input_table(name="Input data", description="Table containing the numeric column to test.")
 @knext.output_table(
