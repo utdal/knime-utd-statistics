@@ -13,8 +13,6 @@ import pandas as pd
 from .factorial_anova import (
     # Core function
     run_factorial_anova,
-    # Enums
-    AnovaType,
     # Parameters
     response_column_param,
     factor_columns_param,
