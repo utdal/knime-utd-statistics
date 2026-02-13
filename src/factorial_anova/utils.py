@@ -20,11 +20,11 @@ def is_numeric(col: knext.Column) -> bool:
 def format_p_value(p) -> str:
     """
     Format p-value to avoid scientific notation.
-    
+
     Returns 'NaN' for missing values, otherwise formats to 4 decimal places.
     """
     import pandas as pd
-    
+
     if pd.isna(p):
         return "NaN"
     return f"{p:.4f}"
@@ -37,21 +37,18 @@ def format_p_value(p) -> str:
 
 class AnovaType(knext.EnumParameterOptions):
     """ANOVA sum of squares type options."""
-    
+
     TYPE_I = (
         "Type I",
-        "Sequential sum of squares. Results depend on the order of factors. "
-        "Best for nested designs or when factor order is meaningful.",
+        "Sequential sum of squares. Results depend on the order of factors. Best for nested designs or when factor order is meaningful.",
     )
     TYPE_II = (
         "Type II",
-        "Partial sum of squares. Tests each factor after accounting for other factors. "
-        "Best for balanced designs without significant interactions.",
+        "Partial sum of squares. Tests each factor after accounting for other factors. Best for balanced designs without significant interactions.",
     )
     TYPE_III = (
         "Type III",
-        "Marginal sum of squares. Recommended for unbalanced designs or when "
-        "interactions are present. Standard in many other statistical packages.",
+        "Marginal sum of squares. Recommended for unbalanced designs or when interactions are present. Standard in many other statistical packages.",
     )
 
 

@@ -65,23 +65,23 @@ factorial_anova_category = knext.category(
 class FactorialAnovaNode:
     """Tests whether multiple categorical factors (and their interactions) have a significant effect on a continuous outcome variable.
 
-This node performs factorial (N-way) ANOVA to analyze how different grouping factors affect a numeric outcome. It can detect both individual factor effects and interaction effects (when the impact of one factor depends on another factor).
+    This node performs factorial (N-way) ANOVA to analyze how different grouping factors affect a numeric outcome. It can detect both individual factor effects and interaction effects (when the impact of one factor depends on another factor).
     """
-    
+
     # --- Core Parameters ---
     response_column = response_column_param
     factor_columns = factor_columns_param
     include_interactions = include_interactions_param
-    
+
     # Conditional parameter: only show when interactions are enabled
     max_interaction_order = max_interaction_order_param.rule(
         knext.OneOf(include_interactions, [True]),
         knext.Effect.SHOW,
     )
-    
+
     anova_type = anova_type_param
     alpha = alpha_param
-    
+
     # --- Output Format ---
     advanced_output = advanced_output_param
 
@@ -89,58 +89,58 @@ This node performs factorial (N-way) ANOVA to analyze how different grouping fac
         """Configure the node's two output table schemas."""
         if self.advanced_output:
             # Advanced ANOVA Table with coefficient info
-            anova_schema = knext.Schema.from_columns([
-                knext.Column(knext.string(), "Source"),
-                knext.Column(knext.double(), "Sum_Sq"),
-                knext.Column(knext.int64(), "DF"),
-                knext.Column(knext.double(), "F"),
-                knext.Column(knext.string(), "PR(>F)"),
-                knext.Column(knext.double(), "Coefficient"),
-                knext.Column(knext.double(), "Std_Error"),
-                knext.Column(knext.double(), "T-Value"),
-                knext.Column(knext.string(), "P-Value"),
-                knext.Column(knext.string(), "Conclusion"),
-            ])
+            anova_schema = knext.Schema.from_columns(
+                [
+                    knext.Column(knext.string(), "Source"),
+                    knext.Column(knext.double(), "Sum_Sq"),
+                    knext.Column(knext.int64(), "DF"),
+                    knext.Column(knext.double(), "F"),
+                    knext.Column(knext.string(), "PR(>F)"),
+                    knext.Column(knext.double(), "Coefficient"),
+                    knext.Column(knext.double(), "Std_Error"),
+                    knext.Column(knext.double(), "T-Value"),
+                    knext.Column(knext.string(), "P-Value"),
+                    knext.Column(knext.string(), "Conclusion"),
+                ]
+            )
         else:
             # Basic ANOVA Summary
-            anova_schema = knext.Schema.from_columns([
-                knext.Column(knext.string(), "Factor"),
-                knext.Column(knext.double(), "F-Statistic"),
-                knext.Column(knext.string(), "P-Value"),
-                knext.Column(knext.string(), "Conclusion"),
-            ])
-        
+            anova_schema = knext.Schema.from_columns(
+                [
+                    knext.Column(knext.string(), "Factor"),
+                    knext.Column(knext.double(), "F-Statistic"),
+                    knext.Column(knext.string(), "P-Value"),
+                    knext.Column(knext.string(), "Conclusion"),
+                ]
+            )
+
         # Port 1: Model Coefficients (always the same schema)
-        coef_schema = knext.Schema.from_columns([
-            knext.Column(knext.string(), "Term"),
-            knext.Column(knext.double(), "Coefficient"),
-            knext.Column(knext.double(), "Std_Error"),
-            knext.Column(knext.string(), "P-Value"),
-            knext.Column(knext.double(), "CI_Lower"),
-            knext.Column(knext.double(), "CI_Upper"),
-        ])
-        
+        coef_schema = knext.Schema.from_columns(
+            [
+                knext.Column(knext.string(), "Term"),
+                knext.Column(knext.double(), "Coefficient"),
+                knext.Column(knext.double(), "Std_Error"),
+                knext.Column(knext.string(), "P-Value"),
+                knext.Column(knext.double(), "CI_Lower"),
+                knext.Column(knext.double(), "CI_Upper"),
+            ]
+        )
+
         return anova_schema, coef_schema
 
     def execute(self, exec_ctx, input_table):
         """Execute the factorial ANOVA analysis."""
         # Convert input to pandas
         df = input_table.to_pandas()
-        
+
         # Validate factor columns selection
         if not self.factor_columns or len(self.factor_columns) == 0:
-            raise ValueError(
-                "No factor columns selected. Please select at least one categorical "
-                "factor variable in the node configuration."
-            )
-        
+            raise ValueError("No factor columns selected. Please select at least one categorical factor variable in the node configuration.")
+
         # Validate response column selection
         if self.response_column is None:
-            raise ValueError(
-                "No response column selected. Please select a numeric response "
-                "variable in the node configuration."
-            )
-        
+            raise ValueError("No response column selected. Please select a numeric response variable in the node configuration.")
+
         # Run factorial ANOVA
         result = run_factorial_anova(
             df=df,
@@ -151,12 +151,12 @@ This node performs factorial (N-way) ANOVA to analyze how different grouping fac
             anova_type=self.anova_type,
             alpha=self.alpha,
         )
-        
+
         # Propagate warnings to KNIME console
         if "warnings" in result and result["warnings"]:
             for warning_msg in result["warnings"]:
                 exec_ctx.set_warning(warning_msg)
-        
+
         # Format output based on advanced_output setting
         if self.advanced_output:
             anova_df = self._format_advanced_with_coefficients(
@@ -166,11 +166,11 @@ This node performs factorial (N-way) ANOVA to analyze how different grouping fac
             )
         else:
             anova_df = result["basic_table"]
-        
+
         # Prepare output tables
         anova_table = knext.Table.from_pandas(anova_df)
         coef_table = knext.Table.from_pandas(result["coefficient_table"])
-        
+
         return anova_table, coef_table
 
     def _format_advanced_with_coefficients(
@@ -188,11 +188,11 @@ This node performs factorial (N-way) ANOVA to analyze how different grouping fac
             clean_term = term.replace("C(", "").replace(")[T.", ":").replace("]", "")
             coef_lookup[clean_term] = row
             coef_lookup[term] = row
-        
+
         rows = []
         for _, row in advanced_df.iterrows():
             source = row["Source"]
-            
+
             # Try to find matching coefficient
             coef_row = None
             # Try exact match first
@@ -204,7 +204,7 @@ This node performs factorial (N-way) ANOVA to analyze how different grouping fac
                     if source in key or key in source:
                         coef_row = coef_lookup[key]
                         break
-            
+
             # Extract coefficient values if found
             if coef_row is not None and source != "Residual":
                 coefficient = coef_row["Coefficient"]
@@ -217,18 +217,20 @@ This node performs factorial (N-way) ANOVA to analyze how different grouping fac
                 std_error = np.nan
                 t_value = np.nan
                 p_value = "NaN"
-            
-            rows.append({
-                "Source": source,
-                "Sum_Sq": row["Sum_Sq"],
-                "DF": row["DF"],
-                "F": row["F-Statistic"],
-                "PR(>F)": row["P-Value"],
-                "Coefficient": coefficient,
-                "Std_Error": std_error,
-                "T-Value": t_value,
-                "P-Value": p_value,
-                "Conclusion": row["Conclusion"],
-            })
-        
+
+            rows.append(
+                {
+                    "Source": source,
+                    "Sum_Sq": row["Sum_Sq"],
+                    "DF": row["DF"],
+                    "F": row["F-Statistic"],
+                    "PR(>F)": row["P-Value"],
+                    "Coefficient": coefficient,
+                    "Std_Error": std_error,
+                    "T-Value": t_value,
+                    "P-Value": p_value,
+                    "Conclusion": row["Conclusion"],
+                }
+            )
+
         return pd.DataFrame(rows)
