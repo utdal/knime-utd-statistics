@@ -1,7 +1,7 @@
 """
 Factorial ANOVA Core Module.
 
-Exports the main computation function and utilities for factorial ANOVA analysis.
+Main computation function and utilities for factorial ANOVA analysis.
 """
 
 from .factorial_anova_core import run_factorial_anova
