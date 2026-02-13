@@ -1,9 +1,9 @@
 """
-Factorial ANOVA KNIME Node.
+Factorial ANOVA Node for KNIME.
 
-Performs factorial (N-way) ANOVA to test effects of multiple categorical factors
-on a continuous response variable. Supports interaction terms, multiple sum of squares
-types, and coefficient output.
+This module provides a KNIME node for testing how multiple categorical factors
+affect a continuous outcome variable. Supports interaction effects, multiple
+sum of squares methods, and flexible output formats.
 """
 
 import knime.extension as knext
@@ -34,7 +34,7 @@ factorial_anova_category = knext.category(
     path="/community",
     level_id="utd_development",
     name="University of Texas at Dallas Development",
-    description="Statistical Analysis Tools - Factorial ANOVA",
+    description="Statistical analysis tools developed by the University of Texas at Dallas",
     icon="./icons/utd.png",
 )
 
@@ -47,47 +47,25 @@ factorial_anova_category = knext.category(
 @knext.node(
     name="Factorial ANOVA",
     node_type=knext.NodeType.MANIPULATOR,
-    icon_path="./icons/utd.png",
+    icon_path="./icons/factorial.jpg",
     category=factorial_anova_category,
 )
 @knext.input_table(
     name="Input Data",
-    description="Table containing the response variable and categorical factor variables.",
+    description="Table with numeric response variable and categorical factor columns.",
 )
 @knext.output_table(
     name="ANOVA Results",
-    description=(
-        "ANOVA results table. Format depends on 'Advanced Output' setting:\n"
-        "• Basic: Factor, F-Statistic, P-Value, Conclusion\n"
-        "• Advanced: Source, Sum_Sq, DF, F, P-Value, Coefficient, Std Error, T-Value, P-Value, Conclusion"
-    ),
+    description="Statistical test results showing which factors significantly affect the outcome.",
 )
 @knext.output_table(
     name="Model Coefficients",
-    description=(
-        "Regression coefficients with standard errors, p-values, and confidence intervals. "
-        "Shows the dummy-coded coefficient estimates for each factor level."
-    ),
+    description="Detailed coefficient estimates showing the effect size of each factor level.",
 )
 class FactorialAnovaNode:
-    """
-    Performs factorial (N-way) ANOVA to test effects of multiple categorical factors
-    on a continuous response variable.
-    
-    This node uses statsmodels OLS to fit a linear model and generate ANOVA tables
-    with configurable sum of squares types (I, II, III). It supports:
-    
-    - Multiple factors with automatic categorical encoding
-    - Configurable interaction depth (2-way, 3-way, 4-way)
-    - Balanced and unbalanced designs with automatic warnings
-    - Basic or Advanced output format (toggle with checkbox)
-    
-    Missing values are automatically dropped from the analysis.
-    
-    Typical use cases:
-    - Testing effects of treatment groups and demographics on outcomes
-    - A/B/n testing with multiple categorical factors
-    - Experimental designs with factorial structure
+    """Tests whether multiple categorical factors (and their interactions) have a significant effect on a continuous outcome variable.
+
+This node performs factorial (N-way) ANOVA to analyze how different grouping factors affect a numeric outcome. It can detect both individual factor effects and interaction effects (when the impact of one factor depends on another factor).
     """
     
     # --- Core Parameters ---
@@ -108,19 +86,13 @@ class FactorialAnovaNode:
     advanced_output = advanced_output_param
 
     def configure(self, cfg_ctx, input_spec):
-        """
-        Configure output table schemas based on advanced_output setting.
-        
-        Returns schemas for 2 output ports:
-        - Port 0: ANOVA Results (basic or advanced based on checkbox)
-        - Port 1: Model Coefficients
-        """
+        """Configure the node's two output table schemas."""
         if self.advanced_output:
             # Advanced ANOVA Table with coefficient info
             anova_schema = knext.Schema.from_columns([
                 knext.Column(knext.string(), "Source"),
                 knext.Column(knext.double(), "Sum_Sq"),
-                knext.Column(knext.int32(), "DF"),
+                knext.Column(knext.int64(), "DF"),
                 knext.Column(knext.double(), "F"),
                 knext.Column(knext.string(), "PR(>F)"),
                 knext.Column(knext.double(), "Coefficient"),
@@ -151,13 +123,7 @@ class FactorialAnovaNode:
         return anova_schema, coef_schema
 
     def execute(self, exec_ctx, input_table):
-        """
-        Execute factorial ANOVA analysis.
-        
-        Returns 2 tables:
-        1. ANOVA Results (basic or advanced format)
-        2. Model Coefficients
-        """
+        """Execute the factorial ANOVA analysis."""
         # Convert input to pandas
         df = input_table.to_pandas()
         
@@ -186,6 +152,11 @@ class FactorialAnovaNode:
             alpha=self.alpha,
         )
         
+        # Propagate warnings to KNIME console
+        if "warnings" in result and result["warnings"]:
+            for warning_msg in result["warnings"]:
+                exec_ctx.set_warning(warning_msg)
+        
         # Format output based on advanced_output setting
         if self.advanced_output:
             anova_df = self._format_advanced_with_coefficients(
@@ -208,12 +179,7 @@ class FactorialAnovaNode:
         coef_df: pd.DataFrame,
         alpha: float,
     ) -> pd.DataFrame:
-        """
-        Merge advanced ANOVA table with coefficient information.
-        
-        Matches factor effects with their corresponding coefficients from the model.
-        Based on the user's reference format showing ANOVA stats + coefficient stats per row.
-        """
+        """Combine ANOVA statistics with coefficient details for advanced output."""
         # Build coefficient lookup (excluding Intercept for matching)
         coef_lookup = {}
         for _, row in coef_df.iterrows():
