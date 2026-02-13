@@ -228,4 +228,8 @@ plugins/
 
 CHANGES.md
 
+<<<<<<< HEAD
 .DS_Store
+=======
+.DS_Store
+>>>>>>> 53bc214 (Ignore DS_Store & remove tracked copies)
