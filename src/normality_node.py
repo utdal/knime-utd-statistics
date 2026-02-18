@@ -10,7 +10,7 @@ import knime.extension as knext
 import numpy as np
 import pandas as pd
 from .normality_tests import run_ad_test, run_cramer_test
-from .normality_tests.utils import test_type_param, input_column_param, alpha_param, TestType
+from .normality_tests.utils import test_type_param, input_columns_param, alpha_param, TestType
 
 
 # UTD statistical analysis category
@@ -35,16 +35,14 @@ utd_category = knext.category(
     description="Normality test results with statistical decision.",
 )
 class NormalityTestsNode:
-    """
-    Tests whether your data follows a normal (bell-shaped) distribution using Anderson-Darling
-    or Cramer-von Mises methods. Normality is a key assumption in many statistical analyses.
+    """Tests whether your data follows a normal (bell-shaped) distribution using Anderson-Darling or Cramer-von Mises methods.
 
     This node performs statistical tests to determine if your data follows a normal distribution,
-    which is required for many parametric statistical procedures.
+    which is a key assumption required for many parametric statistical procedures.
     """
 
     test_type = test_type_param
-    input_column = input_column_param
+    input_columns = input_columns_param
     alpha = alpha_param
 
     def _validate_input_data(self, df, col_name):
@@ -54,7 +52,7 @@ class NormalityTestsNode:
         """
         # Column existence check
         if col_name is None:
-            raise ValueError("No column selected. Please configure the node and select a numeric data column.")
+            raise ValueError("Column name is None.")
 
         if col_name not in df.columns:
             raise ValueError(f"Column '{col_name}' not found in input data.")
@@ -79,10 +77,9 @@ class NormalityTestsNode:
 
     def configure(self, cfg_ctx, input_spec):
         """Configure the node's output table schema."""
-        # Simple single output table schema
         results_cols = [
-            knext.Column(knext.string(), "Test"),
             knext.Column(knext.string(), "Column Tested"),
+            knext.Column(knext.string(), "Test Method"),
             knext.Column(knext.int32(), "Sample Size (n)"),
             knext.Column(knext.double(), "Test Statistic"),
             knext.Column(knext.double(), "P-Value"),
@@ -93,31 +90,54 @@ class NormalityTestsNode:
         return results_schema
 
     def execute(self, exec_ctx, input_table):
-        """Execute the selected normality test."""
+        """Execute the selected normality test on all selected columns."""
         df = input_table.to_pandas()
-        col_name = self.input_column
+        selected_columns = self.input_columns
 
-        # Validate input data (will raise error if validation fails)
-        data = self._validate_input_data(df, col_name)
+        # Validate that at least one column is selected
+        if not selected_columns or len(selected_columns) == 0:
+            raise ValueError("No columns selected. Please select at least one numeric column to test.")
 
-        # Execute the selected test
-        if self.test_type == TestType.ANDERSON_DARLING.name:
-            result = run_ad_test(data, alpha=self.alpha)
-        else:  # Cramer-von Mises test
-            result = run_cramer_test(data, alpha=self.alpha)
+        # Determine test method name
+        test_method_name = "Anderson-Darling" if self.test_type == TestType.ANDERSON_DARLING.name else "Cramer-von Mises"
 
-        # Format results into KNIME table
-        results_df = pd.DataFrame(
-            [
-                {
-                    "Test": result["test"],
-                    "Column Tested": col_name,
-                    "Sample Size (n)": np.int32(result["n"]),
-                    "Test Statistic": result["statistic"],
-                    "P-Value": result["p_value"],
-                    "Statistical Decision": result["decision"],
-                }
-            ]
-        )
+        results = []
 
-        return knext.Table.from_pandas(results_df)
+        # Process each column
+        for col_name in selected_columns:
+            try:
+                data = self._validate_input_data(df, col_name)
+
+                if self.test_type == TestType.ANDERSON_DARLING.name:
+                    result = run_ad_test(data, alpha=self.alpha)
+                else:  # Cramer-von Mises test
+                    result = run_cramer_test(data, alpha=self.alpha)
+
+                results.append(
+                    {
+                        "Column Tested": col_name,
+                        "Test Method": test_method_name,
+                        "Sample Size (n)": np.int32(result["n"]),
+                        "Test Statistic": result["statistic"],
+                        "P-Value": result["p_value"],
+                        "Statistical Decision": result["decision"],
+                    }
+                )
+
+            except ValueError as e:
+                exec_ctx.set_warning(f"Column '{col_name}' skipped: {str(e)}")
+                results.append(
+                    {
+                        "Column Tested": col_name,
+                        "Test Method": test_method_name,
+                        "Sample Size (n)": np.int32(0),
+                        "Test Statistic": np.nan,
+                        "P-Value": np.nan,
+                        "Statistical Decision": f"Skipped - {str(e)}",
+                    }
+                )
+
+        if not results:
+            raise ValueError("No columns could be tested. All selected columns failed validation.")
+
+        return knext.Table.from_pandas(pd.DataFrame(results))
