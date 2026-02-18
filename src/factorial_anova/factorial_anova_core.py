@@ -204,10 +204,12 @@ def format_basic_anova_table(anova_table: pd.DataFrame, alpha: float) -> pd.Data
     """
     rows = []
     for idx, row in anova_table.iterrows():
-        # Determine conclusion
+        # Skip residual row in basic output — it carries no actionable information
         if idx == "Residual":
-            conclusion = "Unexplained"
-        elif pd.notna(row["PR(>F)"]) and row["PR(>F)"] <= alpha:
+            continue
+
+        # Determine conclusion
+        if pd.notna(row["PR(>F)"]) and row["PR(>F)"] <= alpha:
             conclusion = "Significant"
         elif pd.notna(row["PR(>F)"]):
             conclusion = "Not Significant"
@@ -260,9 +262,9 @@ def format_advanced_anova_table(anova_table: pd.DataFrame, alpha: float) -> pd.D
         rows.append(
             {
                 "Source": str(idx),
-                "Sum_Sq": row["sum_sq"],
+                "Sum Sq": row["sum_sq"],
                 "DF": int(row["df"]) if pd.notna(row["df"]) else 0,
-                "Mean_Sq": mean_sq,
+                "Mean Sq": mean_sq,
                 "F-Statistic": row["F"] if pd.notna(row["F"]) else np.nan,
                 "P-Value": format_p_value(row["PR(>F)"]),
                 "Conclusion": conclusion,
@@ -292,10 +294,10 @@ def format_coefficient_table(model) -> pd.DataFrame:
         {
             "Term": model.params.index.tolist(),
             "Coefficient": model.params.values,
-            "Std_Error": model.bse.values,
+            "Std Error": model.bse.values,
             "P-Value": [format_p_value(p) for p in model.pvalues.values],
-            "CI_Lower": conf_int[0].values,
-            "CI_Upper": conf_int[1].values,
+            "CI Lower": conf_int[0].values,
+            "CI Upper": conf_int[1].values,
         }
     )
 
@@ -397,7 +399,7 @@ def run_factorial_anova(
 
     if not is_balanced and anova_type == "TYPE_II" and include_interactions:
         warnings.append(
-            "⚠️ Unbalanced design detected with Type II SS and interactions enabled. "
+            "Unbalanced design detected with Type II SS and interactions enabled. "
             "Consider using Type III SS for accurate interaction effects in unbalanced data."
         )
 
@@ -439,12 +441,12 @@ def run_factorial_anova(
     n_params = len(model.params)
     if n_obs < n_params + 20:
         warnings.append(
-            f"⚠️ Small sample size: n={n_obs} observations with {n_params} parameters. Recommended: n > {n_params + 20}. Results may be unreliable."
+            f"Small sample size: n={n_obs} observations with {n_params} parameters. Recommended: n > {n_params + 20}. Results may be unreliable."
         )
 
     # Step 10: High-order interaction warning
     if include_interactions and max_interaction_order >= 3 and len(factor_cols) >= 3:
-        warnings.append("⚠️ High-order interactions (3-way+) can produce large, difficult-to-interpret models.")
+        warnings.append("High-order interactions (3-way+) can produce large, difficult-to-interpret models.")
 
     return {
         "basic_table": basic_table,
