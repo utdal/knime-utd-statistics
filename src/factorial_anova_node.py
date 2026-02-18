@@ -86,18 +86,16 @@ class FactorialAnovaNode:
     def configure(self, cfg_ctx, input_spec):
         """Configure the node's two output table schemas."""
         if self.advanced_output:
-            # Advanced ANOVA Table with coefficient info
+            # Advanced ANOVA Table - variance decomposition and effect sizes only
             anova_schema = knext.Schema.from_columns(
                 [
                     knext.Column(knext.string(), "Source"),
-                    knext.Column(knext.double(), "Sum_Sq"),
+                    knext.Column(knext.double(), "Sum Sq"),
+                    knext.Column(knext.double(), "Mean Sq"),
                     knext.Column(knext.int64(), "DF"),
-                    knext.Column(knext.double(), "F"),
-                    knext.Column(knext.string(), "PR(>F)"),
-                    knext.Column(knext.double(), "Coefficient"),
-                    knext.Column(knext.double(), "Std_Error"),
-                    knext.Column(knext.double(), "T-Value"),
+                    knext.Column(knext.double(), "F-Statistic"),
                     knext.Column(knext.string(), "P-Value"),
+                    knext.Column(knext.double(), "Partial Eta Squared"),
                     knext.Column(knext.string(), "Conclusion"),
                 ]
             )
@@ -112,15 +110,15 @@ class FactorialAnovaNode:
                 ]
             )
 
-        # Port 1: Model Coefficients (always the same schema)
+        # Port 2: Model Coefficients (always the same schema)
         coef_schema = knext.Schema.from_columns(
             [
                 knext.Column(knext.string(), "Term"),
                 knext.Column(knext.double(), "Coefficient"),
-                knext.Column(knext.double(), "Std_Error"),
+                knext.Column(knext.double(), "Std Error"),
                 knext.Column(knext.string(), "P-Value"),
-                knext.Column(knext.double(), "CI_Lower"),
-                knext.Column(knext.double(), "CI_Upper"),
+                knext.Column(knext.double(), "CI Lower"),
+                knext.Column(knext.double(), "CI Upper"),
             ]
         )
 
@@ -138,6 +136,13 @@ class FactorialAnovaNode:
         # Validate response column selection
         if self.response_column is None:
             raise ValueError("No response column selected. Please select a numeric response variable in the node configuration.")
+
+        # Check for overlap between response and factors
+        if self.response_column in self.factor_columns:
+            raise ValueError(
+                f"Response column '{self.response_column}' cannot also be a factor variable. "
+                "Please select different columns for response and factors."
+            )
 
         # Run factorial ANOVA
         result = run_factorial_anova(
@@ -157,76 +162,43 @@ class FactorialAnovaNode:
 
         # Format output based on advanced_output setting
         if self.advanced_output:
-            anova_df = self._format_advanced_with_coefficients(
-                result["advanced_table"],
-                result["coefficient_table"],
-                self.alpha,
-            )
+            anova_df = self._format_advanced_anova_table(result["advanced_table"])
         else:
             anova_df = result["basic_table"]
 
         # Prepare output tables
         anova_table = knext.Table.from_pandas(anova_df)
+
         coef_table = knext.Table.from_pandas(result["coefficient_table"])
 
         return anova_table, coef_table
 
-    def _format_advanced_with_coefficients(
-        self,
-        advanced_df: pd.DataFrame,
-        coef_df: pd.DataFrame,
-        alpha: float,
-    ) -> pd.DataFrame:
-        """Combine ANOVA statistics with coefficient details for advanced output."""
-        # Build coefficient lookup (excluding Intercept for matching)
-        coef_lookup = {}
-        for _, row in coef_df.iterrows():
-            term = row["Term"]
-            # Clean term name for matching (remove C() wrapper if present)
-            clean_term = term.replace("C(", "").replace(")[T.", ":").replace("]", "")
-            coef_lookup[clean_term] = row
-            coef_lookup[term] = row
+    def _format_advanced_anova_table(self, advanced_df: pd.DataFrame) -> pd.DataFrame:
+        """Format advanced ANOVA table adding Partial_Eta_Squared effect size."""
+        # Get residual SS for partial eta-squared denominator
+        residual_rows = advanced_df[advanced_df["Source"] == "Residual"]["Sum Sq"].values
+        ss_residual = residual_rows[0] if len(residual_rows) > 0 else np.nan
 
         rows = []
         for _, row in advanced_df.iterrows():
             source = row["Source"]
+            sum_sq = row["Sum Sq"]
 
-            # Try to find matching coefficient
-            coef_row = None
-            # Try exact match first
-            if source in coef_lookup:
-                coef_row = coef_lookup[source]
+            # Partial eta-squared: SS_effect / (SS_effect + SS_residual)
+            if source != "Residual" and not np.isnan(ss_residual):
+                partial_eta_sq = sum_sq / (sum_sq + ss_residual)
             else:
-                # Try partial match for interaction terms
-                for key in coef_lookup:
-                    if source in key or key in source:
-                        coef_row = coef_lookup[key]
-                        break
-
-            # Extract coefficient values if found
-            if coef_row is not None and source != "Residual":
-                coefficient = coef_row["Coefficient"]
-                std_error = coef_row["Std_Error"]
-                # Calculate T-value from coefficient / std_error
-                t_value = coefficient / std_error if std_error != 0 else np.nan
-                p_value = coef_row["P-Value"]
-            else:
-                coefficient = np.nan
-                std_error = np.nan
-                t_value = np.nan
-                p_value = "NaN"
+                partial_eta_sq = np.nan
 
             rows.append(
                 {
                     "Source": source,
-                    "Sum_Sq": row["Sum_Sq"],
+                    "Sum Sq": sum_sq,
+                    "Mean Sq": row["Mean Sq"],
                     "DF": row["DF"],
-                    "F": row["F-Statistic"],
-                    "PR(>F)": row["P-Value"],
-                    "Coefficient": coefficient,
-                    "Std_Error": std_error,
-                    "T-Value": t_value,
-                    "P-Value": p_value,
+                    "F-Statistic": row["F-Statistic"],
+                    "P-Value": row["P-Value"],
+                    "Partial Eta Squared": partial_eta_sq,
                     "Conclusion": row["Conclusion"],
                 }
             )

@@ -30,9 +30,9 @@ test_type_param = knext.EnumParameter(
     default_value=TestType.ANDERSON_DARLING.name,
 )
 
-input_column_param = knext.ColumnParameter(
-    label="Data Column",
-    description="Numeric column to test for normality distribution.",
+input_columns_param = knext.MultiColumnParameter(
+    label="Data Columns",
+    description="Select one or more numeric columns to test for normality. Each column will be tested independently.",
     column_filter=is_numeric,
 )
 
