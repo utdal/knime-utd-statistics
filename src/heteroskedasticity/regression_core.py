@@ -2,6 +2,7 @@ import numpy as np
 import pandas as pd
 import statsmodels.api as sm
 from typing import Tuple, List
+import knime.extension as knext
 from .utils import detect_categorical_columns
 
 
@@ -36,7 +37,7 @@ def prepare_data(
             work_df = work_df.dropna()
             dropped_count = original_len - len(work_df)
             if dropped_count > 0:
-                print(f"Dropped {dropped_count} rows containing missing values.")
+                knext.LOGGER.info(f"Dropped {dropped_count} rows containing missing values.")
 
     # Check if we have enough data left
     if len(work_df) < 3:
@@ -52,8 +53,8 @@ def prepare_data(
     # Encode categorical variables with drop_first=True
     if categorical_cols:
         X = pd.get_dummies(X, columns=categorical_cols, drop_first=True, dtype=float)
-        print(f"Encoded categorical columns: {categorical_cols}")
-        print(f"Created dummy variables: {X.columns.tolist()}")
+        knext.LOGGER.info(f"Encoded categorical columns: {categorical_cols}")
+        knext.LOGGER.info(f"Created dummy variables: {X.columns.tolist()}")
 
     # Store encoded column names
     encoded_column_names = X.columns.tolist()
