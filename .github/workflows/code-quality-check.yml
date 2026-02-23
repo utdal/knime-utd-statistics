@@ -94,6 +94,7 @@ jobs:
         id: format-check
         uses: astral-sh/ruff-action@v3
         with:
+          version: "0.13.2"
           args: format --check --diff
         continue-on-error: true
 
@@ -101,6 +102,7 @@ jobs:
         id: lint-check
         uses: astral-sh/ruff-action@v3
         with:
+          version: "0.13.2"
           args: check --output-format=github
         continue-on-error: true
 
