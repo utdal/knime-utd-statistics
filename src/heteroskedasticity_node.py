@@ -3,8 +3,6 @@ import knime.extension as knext
 import numpy as np
 import pandas as pd
 
-LOGGER = logging.getLogger(__name__)
-
 from .heteroskedasticity import (
     # Test functions
     run_breusch_pagan_test,
@@ -27,6 +25,7 @@ from .heteroskedasticity import (
     format_p_value,
 )
 
+LOGGER = logging.getLogger(__name__)
 
 # Output detail level parameter
 output_detail_param = knext.StringParameter(
