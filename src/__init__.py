@@ -1,5 +1,5 @@
 from .normality_node import NormalityTestsNode
 from .post_hoc_node import PostHocTestsNode
-from .factorial_anova_node import FactorialAnovaNode
+from .heteroskedasticity_node import HeteroskedasticityNode
 
-__all__ = ["NormalityTestsNode", "PostHocTestsNode", "FactorialAnovaNode"]
+__all__ = ["NormalityTestsNode", "PostHocTestsNode", "NormalityTestsNode", "HeteroskedasticityNode"]
