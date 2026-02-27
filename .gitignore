@@ -229,3 +229,5 @@ plugins/
 CHANGES.md
 
 .DS_Store
+test_data/
+
