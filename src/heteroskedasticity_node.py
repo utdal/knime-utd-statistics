@@ -1,6 +1,9 @@
+import logging
 import knime.extension as knext
 import numpy as np
 import pandas as pd
+
+LOGGER = logging.getLogger(__name__)
 
 from .heteroskedasticity import (
     # Test functions
@@ -20,6 +23,7 @@ from .heteroskedasticity import (
     alpha_param,
     gq_sort_variable_param,
     gq_split_fraction_param,
+    is_numeric,
     format_p_value,
 )
 
@@ -77,6 +81,7 @@ class HeteroskedasticityNode:
     Output includes the target variable with predictions/residuals, a regression model summary, and
     a single-row test result with a clear statistical decision based on your chosen significance level.
     """
+
     # Node parameters
     test_type = test_type_param
     target_column = target_column_param
@@ -89,6 +94,25 @@ class HeteroskedasticityNode:
     gq_split_fraction = gq_split_fraction_param.rule(knext.OneOf(test_type, [TestType.GOLDFELD_QUANDT.name]), knext.Effect.SHOW)
 
     def configure(self, cfg_ctx, input_spec):
+        # Validate that the target column is numeric
+        if self.target_column:
+            target_col = input_spec[self.target_column]
+            if not is_numeric(target_col):
+                raise knext.InvalidParametersError(
+                    f"Target column '{self.target_column}' is not numeric (type: {target_col.ktype}). "
+                    "Heteroskedasticity tests require a continuous numeric target variable."
+                )
+
+        # Validate that at least one predictor is numeric
+        if self.predictor_columns:
+            numeric_predictors = [col for col in self.predictor_columns if is_numeric(input_spec[col])]
+            if not numeric_predictors:
+                raise knext.InvalidParametersError(
+                    "None of the selected predictor columns are numeric. "
+                    "Heteroskedasticity tests require at least one continuous numeric predictor. "
+                    "Categorical predictors are allowed alongside numeric ones (they will be dummy-encoded)."
+                )
+
         # Output 1: Data with predictions and residuals
         # Schema will be: original columns + prediction + residual
         # We can't know exact schema until execution, so return None for dynamic schema
@@ -131,7 +155,7 @@ class HeteroskedasticityNode:
 
         # Step 1: Prepare data (handle missing values, encode categoricals)
         # Always fail on missing values (hard requirement per specification)
-        X, y, encoded_column_names, original_data_with_dummies = prepare_data(
+        X, y, encoded_column_names = prepare_data(
             df=df,
             target_column=self.target_column,
             predictor_columns=self.predictor_columns,
@@ -144,7 +168,7 @@ class HeteroskedasticityNode:
 
         # Soft warning if sample size is small relative to parameters
         if n_obs < n_predictors + 20:
-            knext.LOGGER.warning(
+            LOGGER.warning(
                 f"Small sample size detected: n={n_obs} observations with k={n_predictors} parameters. "
                 f"Ideally, you should have at least n > k + 20 for reliable results. "
                 f"Current ratio: n/k = {n_obs / n_predictors:.2f}. "
@@ -174,7 +198,7 @@ class HeteroskedasticityNode:
         else:
             raise ValueError(f"Unknown test type: {self.test_type}")
 
-        # Step 6: Format Output 1 - Data with predictions and residuals
+        # Step 5: Format Output 1 - Data with predictions and residuals
         # Only include target, prediction, and residual columns (not excluded predictors)
         output_data = pd.DataFrame({self.target_column: y, "prediction": predictions, "residual": residuals})
 

@@ -14,12 +14,15 @@ def is_numeric(col: knext.Column) -> bool:
 
 
 def detect_categorical_columns(df: pd.DataFrame, column_names: List[str]) -> List[str]:
-    """Detect categorical columns by dtype name for dummy encoding."""
-    categorical_dtypes = ["object", "category", "bool"]
+    """Detect categorical columns for dummy encoding.
+
+    Any column that is not numeric (including pandas StringDtype from KNIME)
+    is treated as categorical.
+    """
     categorical_cols: List[str] = []
 
     for col_name in column_names:
-        if col_name in df.columns and df[col_name].dtype.name in categorical_dtypes:
+        if col_name in df.columns and not pd.api.types.is_numeric_dtype(df[col_name]):
             categorical_cols.append(col_name)
 
     return categorical_cols
@@ -78,10 +81,7 @@ target_column_param = knext.ColumnParameter(
 
 predictor_columns_param = knext.MultiColumnParameter(
     label="Predictor Variables (X)",
-    description=(
-        "One or more predictor variables (independent variables). "
-        "Categorical columns are automatically converted to dummy variables."
-    ),
+    description=("One or more predictor variables (independent variables). Categorical columns are automatically converted to dummy variables."),
 )
 
 alpha_param = knext.DoubleParameter(
