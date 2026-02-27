@@ -1,14 +1,16 @@
+import logging
 import numpy as np
 import pandas as pd
 import statsmodels.api as sm
 from typing import Tuple, List
-import knime.extension as knext
 from .utils import detect_categorical_columns
+
+LOGGER = logging.getLogger(__name__)
 
 
 def prepare_data(
     df: pd.DataFrame, target_column: str, predictor_columns: List[str], fail_on_missing: bool = True
-) -> Tuple[pd.DataFrame, pd.Series, List[str], pd.DataFrame]:
+) -> Tuple[pd.DataFrame, pd.Series, List[str]]:
     # Validate columns exist
     if target_column not in df.columns:
         raise ValueError(f"Target column '{target_column}' not found in input data.")
@@ -37,7 +39,7 @@ def prepare_data(
             work_df = work_df.dropna()
             dropped_count = original_len - len(work_df)
             if dropped_count > 0:
-                knext.LOGGER.info(f"Dropped {dropped_count} rows containing missing values.")
+                LOGGER.info(f"Dropped {dropped_count} rows containing missing values.")
 
     # Check if we have enough data left
     if len(work_df) < 3:
@@ -50,25 +52,32 @@ def prepare_data(
     X = work_df[predictor_columns].copy()
     y = work_df[target_column].copy()
 
+    # Validate target is numeric
+    if not pd.api.types.is_numeric_dtype(y):
+        raise ValueError(
+            f"Target column '{target_column}' is not numeric (dtype: {y.dtype}). "
+            "Heteroskedasticity tests require a continuous numeric target variable."
+        )
+
     # Encode categorical variables with drop_first=True
     if categorical_cols:
         X = pd.get_dummies(X, columns=categorical_cols, drop_first=True, dtype=float)
-        knext.LOGGER.info(f"Encoded categorical columns: {categorical_cols}")
-        knext.LOGGER.info(f"Created dummy variables: {X.columns.tolist()}")
+        LOGGER.info(f"Encoded categorical columns: {categorical_cols}")
+        LOGGER.info(f"Created dummy variables: {X.columns.tolist()}")
+
+    # Verify all predictor columns are numeric after encoding
+    non_numeric_cols = [col for col in X.columns if not pd.api.types.is_numeric_dtype(X[col])]
+    if non_numeric_cols:
+        raise ValueError(
+            f"Predictor columns {non_numeric_cols} are not numeric and could not be automatically encoded. "
+            "Heteroskedasticity tests require numeric predictors. "
+            "Please convert these columns to numeric values or remove them from the predictor list."
+        )
 
     # Store encoded column names
     encoded_column_names = X.columns.tolist()
 
-    # Create full dataset with dummy variables for output
-    original_data_with_dummies = df.copy()
-    if categorical_cols:
-        # Add dummy variables to original dataframe
-        for col in categorical_cols:
-            if col in original_data_with_dummies.columns:
-                dummies = pd.get_dummies(original_data_with_dummies[col], prefix=col, drop_first=True, dtype=float)
-                original_data_with_dummies = pd.concat([original_data_with_dummies, dummies], axis=1)
-
-    return X, y, encoded_column_names, original_data_with_dummies
+    return X, y, encoded_column_names
 
 
 def fit_ols_model(X: pd.DataFrame, y: pd.Series) -> sm.regression.linear_model.RegressionResultsWrapper:
