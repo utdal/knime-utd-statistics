@@ -13,6 +13,7 @@ knime-python-base = "*"
 ruff = "*"
 knime-python-scripting = "*"
 knime-python-versions = "*"
+pytest = ">=8.4.2,<9"
 
 [feature.build.dependencies]
 python = "3.9.*"
