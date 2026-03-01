@@ -227,6 +227,7 @@ features/
 plugins/
 
 CHANGES.md
+test_data
 
 <<<<<<< HEAD
 .DS_Store
