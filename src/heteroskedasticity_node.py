@@ -28,15 +28,13 @@ from .heteroskedasticity import (
 LOGGER = logging.getLogger(__name__)
 
 # Output detail level parameter
-output_detail_param = knext.StringParameter(
-    label="Output Detail Level",
+output_detail_param = knext.BoolParameter(
+    label="Include Advanced Statistics",
     description=(
-        "Choose how much statistical detail to include in the Model Summary output.\n\n"
-        "• Basic: Easy-to-read output with essential coefficients and key model statistics.\n"
-        "• Advanced: Full statistical detail including coefficient types, standard errors, and degrees of freedom."
+        "Basic: Easy-to-read output with essential coefficients and key model statistics.\n\n"
+        "Advanced: Full statistical detail including coefficient types, standard errors, and degrees of freedom."
     ),
-    default_value="Advanced",
-    enum=["Basic", "Advanced"],
+    default_value=False,
 )
 
 
@@ -53,21 +51,21 @@ utd_category = knext.category(
 @knext.node(
     name="Heteroskedasticity Tests",
     node_type=knext.NodeType.MANIPULATOR,
-    icon_path="./icons/bell_curve.png",
+    icon_path="./icons/heteroskedasticity.png",
     category=utd_category,
 )
 @knext.input_table(name="Input Data", description="Data table containing the target variable and predictor variables for regression analysis.")
 @knext.output_table(
-    name="Data with Predictions",
-    description="Output table containing the target variable, model predictions, and residuals (actual minus predicted values).",
+    name="Heteroskedasticity Test",
+    description="Heteroskedasticity test results with test statistic, p-value, and statistical decision.",
 )
 @knext.output_table(
     name="Model Summary",
     description="Output table containing regression coefficients and key model statistics. Output format depends on your Basic vs Advanced selection.",
 )
 @knext.output_table(
-    name="Heteroskedasticity Test",
-    description="Heteroskedasticity test results with test statistic, p-value, and statistical decision.",
+    name="Data with Predictions",
+    description="Output table containing the target variable, model predictions, and residuals (actual minus predicted values).",
 )
 class HeteroskedasticityNode:
     """
@@ -83,14 +81,15 @@ class HeteroskedasticityNode:
 
     # Node parameters
     test_type = test_type_param
-    target_column = target_column_param
-    predictor_columns = predictor_columns_param
-    alpha = alpha_param
-    output_detail = output_detail_param
 
     # Goldfeld-Quandt specific parameters - only visible when GQ test is selected
     gq_sort_variable = gq_sort_variable_param.rule(knext.OneOf(test_type, [TestType.GOLDFELD_QUANDT.name]), knext.Effect.SHOW)
     gq_split_fraction = gq_split_fraction_param.rule(knext.OneOf(test_type, [TestType.GOLDFELD_QUANDT.name]), knext.Effect.SHOW)
+
+    target_column = target_column_param
+    predictor_columns = predictor_columns_param
+    alpha = alpha_param
+    output_detail = output_detail_param
 
     def configure(self, cfg_ctx, input_spec):
         # Validate that the target column is numeric
@@ -119,12 +118,12 @@ class HeteroskedasticityNode:
 
         # Output 2: Model summary (coefficient table + metrics)
         # Schema depends on output detail level
-        if self.output_detail == "Basic":
+        if not self.output_detail:
             # Simple mode: end-user friendly with essential statistics
             model_summary_cols = [
                 knext.Column(knext.string(), "Information"),
                 knext.Column(knext.double(), "Measure"),
-                knext.Column(knext.string(), "P-Value"),
+                knext.Column(knext.double(), "P-Value"),
             ]
         else:
             # Advanced mode: full statistical details with type classification
@@ -133,7 +132,7 @@ class HeteroskedasticityNode:
                 knext.Column(knext.string(), "Information"),
                 knext.Column(knext.double(), "Measure"),
                 knext.Column(knext.double(), "Std Error"),
-                knext.Column(knext.string(), "P-Value"),
+                knext.Column(knext.double(), "P-Value"),
             ]
         model_summary_schema = knext.Schema.from_columns(model_summary_cols)
 
@@ -141,12 +140,12 @@ class HeteroskedasticityNode:
         test_results_cols = [
             knext.Column(knext.string(), "Test"),
             knext.Column(knext.double(), "Test Statistic"),
-            knext.Column(knext.string(), "P-Value"),
+            knext.Column(knext.double(), "P-Value"),
             knext.Column(knext.string(), "Heteroskedasticity"),
         ]
         test_results_schema = knext.Schema.from_columns(test_results_cols)
 
-        return data_schema, model_summary_schema, test_results_schema
+        return test_results_schema, model_summary_schema, data_schema
 
     def execute(self, exec_ctx, input_table):
         # Convert KNIME table to pandas DataFrame
@@ -207,7 +206,7 @@ class HeteroskedasticityNode:
         # Extract F-statistic p-value for use in F-statistic row
         f_pvalue = metrics_table[metrics_table["Metric"] == "Prob (F-statistic)"]["Value"].values[0]
 
-        if self.output_detail == "Basic":
+        if not self.output_detail:
             # SIMPLE MODE: End-user friendly with essential statistics
             # Schema: Information, Measure, P-Value
 
@@ -222,7 +221,7 @@ class HeteroskedasticityNode:
                 metric_row = metrics_table[metrics_table["Metric"] == metric_name]
                 if not metric_row.empty:
                     # F-statistic gets the p-value from Prob (F-statistic)
-                    p_val = format_p_value(f_pvalue) if metric_name == "F-statistic" else ""
+                    p_val = format_p_value(f_pvalue) if metric_name == "F-statistic" else np.nan
                     simple_rows.append({"Information": metric_name, "Measure": metric_row["Value"].values[0], "P-Value": p_val})
 
             model_summary = pd.DataFrame(simple_rows)
@@ -256,7 +255,7 @@ class HeteroskedasticityNode:
                         p_val = format_p_value(f_pvalue)
                     else:
                         row_type = "Model statistic"
-                        p_val = ""
+                        p_val = np.nan
 
                     advanced_rows.append(
                         {
@@ -282,7 +281,7 @@ class HeteroskedasticityNode:
             ]
         )
 
-        # Format P-Value to avoid scientific notation (E-22, etc.)
+        # Round P-Value to 4 decimal places (numeric, not string)
         test_results_df["P-Value"] = test_results_df["P-Value"].apply(format_p_value)
 
         # Convert to KNIME tables
@@ -290,4 +289,4 @@ class HeteroskedasticityNode:
         output_table_2 = knext.Table.from_pandas(model_summary)
         output_table_3 = knext.Table.from_pandas(test_results_df)
 
-        return output_table_1, output_table_2, output_table_3
+        return output_table_3, output_table_2, output_table_1

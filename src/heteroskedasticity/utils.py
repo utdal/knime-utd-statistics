@@ -29,17 +29,16 @@ def detect_categorical_columns(df: pd.DataFrame, column_names: List[str]) -> Lis
 
 
 def format_p_value(p):
-    """Format p-values for readable KNIME output (avoid scientific notation)."""
-    # Handle potential nulls or '?' from KNIME
+    """Round a p-value to 4 decimal places, returning a numeric float.
+
+    Returns ``float('nan')`` for missing or unrecognised values so the
+    P-Value column stays ``knext.double()`` and is usable by downstream
+    KNIME nodes.
+    """
     if pd.isna(p) or p == "?":
-        return "?"
+        return float("nan")
 
-    # Threshold for very small values
-    if p < 0.001:
-        return "< 0.001"
-
-    # Standard rounding (helps distinguish p=0.049 vs p=0.051)
-    return f"{p:.4f}"
+    return round(float(p), 4)
 
 
 # Test type enumeration
@@ -60,13 +59,13 @@ class TestType(knext.EnumParameterOptions):
 
 # Individual parameters (not in a group)
 test_type_param = knext.EnumParameter(
-    label="Description",
+    label="Heteroskedasticity Test Type",
     description=(
         "The Heteroskedasticity Tests node checks whether your regression errors have constant variance "
         "(homoskedasticity) or changing variance (heteroskedasticity) — a key assumption in regression analysis. "
         "You can choose between three well-known methods:\n\n"
-        "• Breusch-Pagan: Standard test for most situations.\n"
-        "• White: More general test for complex patterns.\n"
+        "• Breusch-Pagan: Standard test for most situations.\n\n"
+        "• White: More general test for complex patterns.\n\n"
         "• Goldfeld-Quandt: Compares variance across two groups after sorting by a selected variable."
     ),
     enum=TestType,
@@ -100,8 +99,12 @@ gq_sort_variable_param = knext.ColumnParameter(
 
 gq_split_fraction_param = knext.DoubleParameter(
     label="Split Fraction (Goldfeld-Quandt)",
-    description="Proportion of data used in each comparison group (default: 0.5).",
-    default_value=0.5,
+    description=(
+        "Proportion of observations assigned to each comparison group after sorting by the selected variable.\n\n"
+        "With the default value of 0.33, the bottom 33% of observations form the low group, "
+        "the top 33% form the high group, and the middle 34% are omitted."
+    ),
+    default_value=0.33,
     min_value=0.2,
     max_value=0.8,
 )
