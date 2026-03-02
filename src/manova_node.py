@@ -96,7 +96,7 @@ class ManovaNode:
         else:
             results_cols = [
                 knext.Column(knext.string(), "Factor"),
-                knext.Column(knext.double(), "Pillai's P-Val"),
+                knext.Column(knext.double(), "Pillai's P-Value"),
                 knext.Column(knext.string(), "Conclusion"),
             ]
 
