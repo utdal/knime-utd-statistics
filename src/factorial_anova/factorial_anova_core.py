@@ -135,25 +135,33 @@ def build_anova_formula(
     >>> build_anova_formula("Y", ["A", "B", "C"], True, 2)
     'Y ~ C(A) + C(B) + C(C) + C(A):C(B) + C(A):C(C) + C(B):C(C)'
     """
+
+    def _quote(col: str) -> str:
+        """Safely quote a column name for use in a patsy formula via Q()."""
+        escaped = col.replace("\\", "\\\\").replace('"', r"\"")
+        return f'Q("{escaped}")'
+
+    resp = _quote(response_col)
+
     if not include_interactions:
         # Main effects only
-        terms = [f"C({col})" for col in factor_cols]
-        return f"{response_col} ~ {' + '.join(terms)}"
+        terms = [f"C({_quote(col)})" for col in factor_cols]
+        return f"{resp} ~ {' + '.join(terms)}"
 
     if max_order >= len(factor_cols):
         # Full factorial (all interactions up to n-way)
-        terms = [f"C({col})" for col in factor_cols]
-        return f"{response_col} ~ {' * '.join(terms)}"
+        terms = [f"C({_quote(col)})" for col in factor_cols]
+        return f"{resp} ~ {' * '.join(terms)}"
 
     # Custom interaction depth (e.g., max_order=2 for 2-way only)
-    terms = [f"C({col})" for col in factor_cols]  # Main effects
+    terms = [f"C({_quote(col)})" for col in factor_cols]  # Main effects
 
     for order in range(2, max_order + 1):
         for combo in combinations(factor_cols, order):
-            interaction_term = ":".join([f"C({c})" for c in combo])
+            interaction_term = ":".join([f"C({_quote(c)})" for c in combo])
             terms.append(interaction_term)
 
-    return f"{response_col} ~ {' + '.join(terms)}"
+    return f"{resp} ~ {' + '.join(terms)}"
 
 
 # =============================================================================
@@ -377,7 +385,6 @@ def run_factorial_anova(
         - "basic_table": pd.DataFrame - Basic ANOVA summary
         - "advanced_table": pd.DataFrame - Detailed ANOVA table
         - "coefficient_table": pd.DataFrame - Model coefficients (always included)
-        - "residual_table": pd.DataFrame - Predictions and residuals (always included)
         - "n_obs": int - Number of observations used
         - "formula": str - Model formula used
         - "warnings": List[str] - Any warnings generated
@@ -433,18 +440,14 @@ def run_factorial_anova(
     # Step 7: Always generate coefficient table
     coefficient_table = format_coefficient_table(model)
 
-    # Step 8: Always generate residual table
-    y_values = work_df[response_col]
-    residual_table = format_residual_table(model, response_col, y_values)
-
-    # Step 9: Check for small sample size warning
+    # Step 8: Check for small sample size warning
     n_params = len(model.params)
     if n_obs < n_params + 20:
         warnings.append(
             f"Small sample size: n={n_obs} observations with {n_params} parameters. Recommended: n > {n_params + 20}. Results may be unreliable."
         )
 
-    # Step 10: High-order interaction warning
+    # Step 9: High-order interaction warning
     if include_interactions and max_interaction_order >= 3 and len(factor_cols) >= 3:
         warnings.append("High-order interactions (3-way+) can produce large, difficult-to-interpret models.")
 
@@ -452,7 +455,6 @@ def run_factorial_anova(
         "basic_table": basic_table,
         "advanced_table": advanced_table,
         "coefficient_table": coefficient_table,
-        "residual_table": residual_table,
         "n_obs": n_obs,
         "formula": formula,
         "warnings": warnings,
