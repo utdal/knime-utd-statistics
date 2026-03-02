@@ -94,7 +94,7 @@ def format_basic_results(manova_result):
     """
     Format MANOVA results for the **Basic** (Simple) output view.
 
-    Columns: Factor, Pillai's P-Val, Conclusion.
+    Columns: Factor, Pillai's P-Value, Conclusion.
     """
 
     conclusion = "Significant" if manova_result["significant"] else "Not Significant"
@@ -102,7 +102,7 @@ def format_basic_results(manova_result):
     return pd.DataFrame(
         {
             "Factor": [manova_result["factor"]],
-            "Pillai's P-Val": [manova_result["p_value"]],
+            "Pillai's P-Value": [manova_result["p_value"]],
             "Conclusion": [conclusion],
         }
     )
