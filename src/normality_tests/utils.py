@@ -24,7 +24,7 @@ class TestType(knext.EnumParameterOptions):
 
 # Individual parameters (not in a group)
 test_type_param = knext.EnumParameter(
-    label="Description",
+    label="Normality Test Type",
     description="The Statistical Normality Tests node checks whether your data follows a normal (bell-shaped) distribution - a key assumption in many statistical analyses. You can choose between two well-known methods:",
     enum=TestType,
     default_value=TestType.ANDERSON_DARLING.name,
