@@ -94,7 +94,7 @@ class FactorialAnovaNode:
                     knext.Column(knext.double(), "Mean Sq"),
                     knext.Column(knext.int64(), "DF"),
                     knext.Column(knext.double(), "F-Statistic"),
-                    knext.Column(knext.string(), "P-Value"),
+                    knext.Column(knext.double(), "P-Value"),
                     knext.Column(knext.double(), "Partial Eta Squared"),
                     knext.Column(knext.string(), "Conclusion"),
                 ]
@@ -105,7 +105,7 @@ class FactorialAnovaNode:
                 [
                     knext.Column(knext.string(), "Factor"),
                     knext.Column(knext.double(), "F-Statistic"),
-                    knext.Column(knext.string(), "P-Value"),
+                    knext.Column(knext.double(), "P-Value"),
                     knext.Column(knext.string(), "Conclusion"),
                 ]
             )
@@ -116,7 +116,7 @@ class FactorialAnovaNode:
                 knext.Column(knext.string(), "Term"),
                 knext.Column(knext.double(), "Coefficient"),
                 knext.Column(knext.double(), "Std Error"),
-                knext.Column(knext.string(), "P-Value"),
+                knext.Column(knext.double(), "P-Value"),
                 knext.Column(knext.double(), "CI Lower"),
                 knext.Column(knext.double(), "CI Upper"),
             ]

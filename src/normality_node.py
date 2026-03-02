@@ -52,7 +52,7 @@ class NormalityTestsNode:
         """
         # Column existence check
         if col_name is None:
-            raise ValueError("Column name is None.")
+            raise ValueError("No column selected. Please configure the node and select at least one numeric column to test.")
 
         if col_name not in df.columns:
             raise ValueError(f"Column '{col_name}' not found in input data.")

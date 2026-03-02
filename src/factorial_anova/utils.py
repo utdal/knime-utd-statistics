@@ -17,17 +17,18 @@ def is_numeric(col: knext.Column) -> bool:
     return col.ktype in (knext.double(), knext.int32(), knext.int64())
 
 
-def format_p_value(p) -> str:
-    """
-    Format p-value to avoid scientific notation.
+def format_p_value(p):
+    """Round a p-value to 4 decimal places, returning a numeric float.
 
-    Returns 'NaN' for missing values, otherwise formats to 4 decimal places.
+    Returns ``float('nan')`` for missing or unrecognised values so the
+    P-Value column stays ``knext.double()`` and is usable by downstream
+    KNIME nodes.
     """
     import pandas as pd
 
     if pd.isna(p):
-        return "NaN"
-    return f"{p:.4f}"
+        return float("nan")
+    return round(float(p), 4)
 
 
 # =============================================================================
@@ -116,11 +117,12 @@ alpha_param = knext.DoubleParameter(
 # --- Output Format Parameter ---
 
 advanced_output_param = knext.BoolParameter(
-    label="Advanced Output",
-    description="""Include detailed coefficient information in the results table.
-
-• Unchecked: Basic summary (Factor, F-Statistic, P-Value, Conclusion)
-
-• Checked: Advanced details with coefficients, standard errors, and T-stats""",
+    label="Include Advanced Statistics",
+    description=(
+        "Controls the level of detail in the ANOVA Results table.\n\n"
+        "Basic: Summary with Factor, F-Statistic, P-Value, and Conclusion.\n\n"
+        "Advanced: Full variance decomposition with Sum of Squares, Degrees of Freedom, "
+        "Mean Square, Partial Eta Squared effect size, and Conclusion."
+    ),
     default_value=False,
 )
