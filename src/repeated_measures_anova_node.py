@@ -8,7 +8,6 @@ technical-validation output.
 """
 
 import knime.extension as knext
-import numpy as np
 import pandas as pd
 
 from .repeated_measures_anova import (
