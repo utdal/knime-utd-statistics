@@ -16,7 +16,6 @@ Output column reference (factor + error rows):
 import numpy as np
 import pandas as pd
 from scipy.stats import f as f_dist, chi2 as chi2_dist
-from statsmodels.stats.anova import AnovaRM
 
 
 # ── Validation ─────────────────────────────────────────────────────────────────

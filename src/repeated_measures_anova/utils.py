@@ -28,7 +28,6 @@ def is_subject_id(col: knext.Column) -> bool:
 
 def format_p_value(p) -> str:
     """Format p-values to avoid scientific notation in KNIME output."""
-    import pandas as pd
     import numpy as np
 
     if p is None:
