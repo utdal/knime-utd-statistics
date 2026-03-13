@@ -167,23 +167,23 @@ class RepeatedMeasuresAnovaNode:
         if self.advanced_output:
             output_cols = [
                 knext.Column(knext.string(), "Source"),
-                knext.Column(knext.double(), "SS"),
-                knext.Column(knext.double(), "df"),
-                knext.Column(knext.double(), "MS"),
+                knext.Column(knext.double(), "Sum of Squares"),
+                knext.Column(knext.double(), "Degrees of Freedom"),
+                knext.Column(knext.double(), "Mean Square"),
                 knext.Column(knext.double(), "F Statistic"),
-                knext.Column(knext.double(), "p uncorrected"),
-                knext.Column(knext.double(), "p GG (Corrected)"),
-                knext.Column(knext.double(), "Mauchly W"),
-                knext.Column(knext.double(), "Mauchly p"),
-                knext.Column(knext.double(), "Epsilon GG"),
-                knext.Column(knext.double(), "Effect Size (np2)"),
+                knext.Column(knext.double(), "P-Value (Uncorrected)"),
+                knext.Column(knext.double(), "P-Value (Greenhouse-Geisser Corrected)"),
+                knext.Column(knext.double(), "Mauchly's W"),
+                knext.Column(knext.double(), "Mauchly's P-Value"),
+                knext.Column(knext.double(), "Epsilon (Greenhouse-Geisser)"),
+                knext.Column(knext.double(), "Effect Size (Partial Eta Squared)"),
                 knext.Column(knext.string(), "Conclusion"),
             ]
         else:
             output_cols = [
                 knext.Column(knext.string(), "Source"),
-                knext.Column(knext.double(), "Corrected p-value (G-G)"),
-                knext.Column(knext.double(), "Effect Size (np2)"),
+                knext.Column(knext.double(), "P-Value (Greenhouse-Geisser Corrected)"),
+                knext.Column(knext.double(), "Effect Size (Partial Eta Squared)"),
                 knext.Column(knext.string(), "Conclusion"),
             ]
 
