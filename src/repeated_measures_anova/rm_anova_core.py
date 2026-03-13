@@ -16,6 +16,7 @@ Output column reference (factor + error rows):
 import numpy as np
 import pandas as pd
 from scipy.stats import f as f_dist, chi2 as chi2_dist
+from .utils import format_p_value
 
 
 # ── Validation ─────────────────────────────────────────────────────────────────
@@ -323,7 +324,7 @@ def build_basic_output(result: dict, alpha: float) -> pd.DataFrame:
     Construct the Basic mode output DataFrame.
 
     Returns 1 row (the factor) with columns:
-        Source | Corrected p-value (G-G) | Effect Size (np2) | Conclusion
+        Source | P-Value (Greenhouse-Geisser Corrected) | Effect Size (Partial Eta Squared) | Conclusion
     """
     row = result["factor_row"]
 
@@ -334,8 +335,8 @@ def build_basic_output(result: dict, alpha: float) -> pd.DataFrame:
         [
             {
                 "Source": result["factor_name"],
-                "Corrected p-value (G-G)": result["p_gg_corr"],
-                "Effect Size (np2)": np2,
+                "P-Value (Greenhouse-Geisser Corrected)": format_p_value(result["p_gg_corr"]),
+                "Effect Size (Partial Eta Squared)": np2,
                 "Conclusion": conclusion,
             }
         ]
@@ -347,12 +348,15 @@ def build_advanced_output(result: dict, alpha: float) -> pd.DataFrame:
     Construct the Advanced mode output DataFrame.
 
     Returns 2 rows (factor + error term) with columns:
-        Source | SS | df | MS | F Statistic | p uncorrected | p GG (Corrected) |
-        Mauchly W | Mauchly p | Epsilon GG | Effect Size (np2) | Conclusion
+        Source | Sum of Squares | Degrees of Freedom | Mean Square | F Statistic |
+        P-Value (Uncorrected) | P-Value (Greenhouse-Geisser Corrected) |
+        Mauchly's W | Mauchly's P-Value | Epsilon (Greenhouse-Geisser) |
+        Effect Size (Partial Eta Squared) | Conclusion
 
-    For the Error row, sphericity columns (Mauchly W, Mauchly p, Epsilon GG,
-    p GG (Corrected), Effect Size) are NaN and Conclusion is empty — these
-    statistics are only meaningful for the factor, not the residual error term.
+    For the Error row, sphericity columns (Mauchly's W, Mauchly's P-Value,
+    Epsilon (Greenhouse-Geisser), P-Value (Greenhouse-Geisser Corrected),
+    Effect Size) are NaN and Conclusion is empty — these statistics are only
+    meaningful for the factor, not the residual error term.
     """
     factor_row = result["factor_row"]
     error_row = result["error_row"]
@@ -362,16 +366,16 @@ def build_advanced_output(result: dict, alpha: float) -> pd.DataFrame:
     rows.append(
         {
             "Source": result["factor_name"],
-            "SS": _safe_float(factor_row.get("SS")),
-            "df": _safe_float(factor_row.get("DF")),
-            "MS": _safe_float(factor_row.get("MS")),
+            "Sum of Squares": _safe_float(factor_row.get("SS")),
+            "Degrees of Freedom": _safe_float(factor_row.get("DF")),
+            "Mean Square": _safe_float(factor_row.get("MS")),
             "F Statistic": _safe_float(factor_row.get("F")),
-            "p uncorrected": _safe_float(factor_row.get("p_unc")),
-            "p GG (Corrected)": result["p_gg_corr"],
-            "Mauchly W": result["mauchly_W"],
-            "Mauchly p": result["mauchly_p"],
-            "Epsilon GG": result["epsilon_gg"],
-            "Effect Size (np2)": _safe_float(factor_row.get("np2")),
+            "P-Value (Uncorrected)": format_p_value(factor_row.get("p_unc")),
+            "P-Value (Greenhouse-Geisser Corrected)": format_p_value(result["p_gg_corr"]),
+            "Mauchly's W": result["mauchly_W"],
+            "Mauchly's P-Value": format_p_value(result["mauchly_p"]),
+            "Epsilon (Greenhouse-Geisser)": result["epsilon_gg"],
+            "Effect Size (Partial Eta Squared)": _safe_float(factor_row.get("np2")),
             "Conclusion": "Significant" if result["is_significant"] else "Not Significant",
         }
     )
@@ -381,16 +385,16 @@ def build_advanced_output(result: dict, alpha: float) -> pd.DataFrame:
         rows.append(
             {
                 "Source": "Error",
-                "SS": _safe_float(error_row.get("SS")),
-                "df": _safe_float(error_row.get("DF")),
-                "MS": _safe_float(error_row.get("MS")),
+                "Sum of Squares": _safe_float(error_row.get("SS")),
+                "Degrees of Freedom": _safe_float(error_row.get("DF")),
+                "Mean Square": _safe_float(error_row.get("MS")),
                 "F Statistic": np.nan,
-                "p uncorrected": np.nan,
-                "p GG (Corrected)": np.nan,
-                "Mauchly W": np.nan,
-                "Mauchly p": np.nan,
-                "Epsilon GG": np.nan,
-                "Effect Size (np2)": np.nan,
+                "P-Value (Uncorrected)": np.nan,
+                "P-Value (Greenhouse-Geisser Corrected)": np.nan,
+                "Mauchly's W": np.nan,
+                "Mauchly's P-Value": np.nan,
+                "Epsilon (Greenhouse-Geisser)": np.nan,
+                "Effect Size (Partial Eta Squared)": np.nan,
                 "Conclusion": "",
             }
         )

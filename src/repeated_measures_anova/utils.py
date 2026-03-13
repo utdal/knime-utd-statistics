@@ -26,21 +26,19 @@ def is_subject_id(col: knext.Column) -> bool:
 # ── Helper Functions ───────────────────────────────────────────────────────────
 
 
-def format_p_value(p) -> str:
-    """Format p-values to avoid scientific notation in KNIME output."""
+def format_p_value(p) -> float:
+    """Format p-values by rounding to 4 decimal places, returning a double (float)."""
     import numpy as np
 
     if p is None:
-        return ""
+        return np.nan
     try:
         val = float(p)
     except (TypeError, ValueError):
-        return str(p)
+        return np.nan
     if np.isnan(val):
-        return ""
-    if val < 0.001:
-        return "< 0.001"
-    return f"{val:.4f}"
+        return np.nan
+    return round(val, 4)
 
 
 # ── Data Format Enum & Parameter ───────────────────────────────────────────────
