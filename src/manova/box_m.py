@@ -5,6 +5,10 @@ This module implements Box's M test with a chi-square approximation,
 the standard multivariate assumption check for MANOVA.  A significant
 result (typically *p* < 0.001) indicates that the covariance matrices
 differ across groups, violating the homogeneity-of-covariance assumption.
+
+References
+----------
+https://en.wikipedia.org/wiki/Box%27s_M_test
 """
 
 import numpy as np
@@ -73,11 +77,24 @@ def compute_box_m(df, dep_vars, group_col):
     # slogdet is used instead of log(det(...)) to avoid silent underflow
     # to 0 or floating-point negatives that produce -inf / nan.
     # ------------------------------------------------------------------
-    _, ln_det_pooled = np.linalg.slogdet(S_pooled)
+    sign_pooled, ln_det_pooled = np.linalg.slogdet(S_pooled)
+    if sign_pooled <= 0 or not np.isfinite(ln_det_pooled):
+        raise ValueError(
+            "Pooled covariance matrix is singular or not positive definite. "
+            "Box's M test cannot be computed. Consider removing collinear "
+            "variables or ensuring sufficient observations per group."
+        )
 
     M = (N - g) * ln_det_pooled
     for i in range(g):
-        _, ln_det_i = np.linalg.slogdet(S_list[i])
+        sign_i, ln_det_i = np.linalg.slogdet(S_list[i])
+        if sign_i <= 0 or not np.isfinite(ln_det_i):
+            raise ValueError(
+                f"Covariance matrix for group {unique_groups[i]!r} is singular or "
+                "not positive definite. Box's M test cannot be computed. "
+                "Consider removing collinear variables or ensuring sufficient "
+                "observations in each group."
+            )
         M -= (n_arr[i] - 1) * ln_det_i
 
     # ------------------------------------------------------------------

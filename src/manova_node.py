@@ -35,7 +35,7 @@ utd_category = knext.category(
 @knext.node(
     name="One-Way MANOVA",
     node_type=knext.NodeType.MANIPULATOR,
-    icon_path="./icons/MANOVA3.png",
+    icon_path="./icons/manova3.png",
     category=utd_category,
 )
 @knext.input_table(
@@ -48,18 +48,15 @@ utd_category = knext.category(
 )
 @knext.output_table(
     name="Reliability Report",
-    description="Box's M test result for equality of covariance matrices across groups.",
+    description="[Box's M test](https://en.wikipedia.org/wiki/Box%27s_M_test) for equality of covariance matrices across groups.",
 )
 class ManovaNode:
     """
     Performs one-way Multivariate Analysis of Variance (MANOVA) using Pillai's Trace.
 
-    MANOVA tests whether group means differ across multiple dependent variables
-    simultaneously.
+    MANOVA tests whether group means differ across multiple dependent variables simultaneously.
 
-    This node uses Pillai's Trace as the primary test statistic due to its
-    robustness to violations of assumptions.  Box's M test is provided as a
-    reliability check for the equality-of-covariance-matrices assumption.
+    This node uses Pillai's Trace as the primary test statistic due to its robustness to violations of assumptions. [Box's M test](https://en.wikipedia.org/wiki/Box%27s_M_test) is provided as a reliability check for the equality-of-covariance-matrices assumption.
     """
 
     dependent_columns = dependent_columns_param
@@ -86,8 +83,7 @@ class ManovaNode:
         if self.advanced_stats:
             results_cols = [
                 knext.Column(knext.string(), "Source"),
-                knext.Column(knext.string(), "Test Stat"),
-                knext.Column(knext.double(), "Value"),
+                knext.Column(knext.double(), "Statistic"),
                 knext.Column(knext.double(), "Numerator Df"),
                 knext.Column(knext.double(), "Denominator Df"),
                 knext.Column(knext.double(), "F-Value"),
@@ -96,7 +92,7 @@ class ManovaNode:
         else:
             results_cols = [
                 knext.Column(knext.string(), "Factor"),
-                knext.Column(knext.double(), "Pillai's P-Value"),
+                knext.Column(knext.double(), "P-Value"),
                 knext.Column(knext.string(), "Conclusion"),
             ]
 

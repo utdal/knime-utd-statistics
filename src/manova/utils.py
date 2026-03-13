@@ -33,7 +33,7 @@ def format_p_value(p):
 # ---------------------------------------------------------------------------
 
 dependent_columns_param = knext.MultiColumnParameter(
-    label="Dependent Variables (Y)",
+    label="Dependent Variables",
     description=(
         "Select two or more numeric columns as dependent variables for the "
         "multivariate analysis.  MANOVA tests whether group means differ "
@@ -145,10 +145,18 @@ def validate_manova_data(df, dep_vars, group_col):
     # 5. Minimum sample size per group
     # ------------------------------------------------------------------
     group_sizes = df_clean.groupby(group_col).size()
+    p = len(dep_vars)
+    required_min = max(2, p + 1)
     min_n = group_sizes.min()
-    if min_n < 2:
-        small = group_sizes[group_sizes < 2].index.tolist()
-        raise ValueError(f"Groups with insufficient sample size (n < 2): {small}. Each group must have at least 2 observations for MANOVA.")
+    if min_n < required_min:
+        small = group_sizes[group_sizes < required_min]
+        small_info = ", ".join(f"{grp!r} (n={n})" for grp, n in small.items())
+        raise ValueError(
+            f"Insufficient sample size per group for MANOVA. Each group must have "
+            f"more observations than dependent variables (n_i > p = {p}). "
+            f"Minimum required per group: {required_min}. "
+            f"Groups not meeting this requirement: {small_info}."
+        )
 
     # ------------------------------------------------------------------
     # 6. Zero-variance check (per variable per group)

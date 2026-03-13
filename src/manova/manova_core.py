@@ -43,9 +43,14 @@ def run_manova(df, dep_vars, group_col, alpha=0.05):
         - ``alpha`` : float – significance level used.
     """
 
-    # Build formula:  y1 + y2 + … ~ C(group)
-    dep_formula = " + ".join(dep_vars)
-    formula = f"{dep_formula} ~ C({group_col})"
+    def _quote(col: str) -> str:
+        """Safely quote a column name for use in a patsy formula via Q()."""
+        escaped = col.replace("\\", "\\\\").replace('"', r"\"")
+        return f'Q("{escaped}")'
+
+    # Build formula:  Q("y1") + Q("y2") + … ~ C(Q("group"))
+    dep_formula = " + ".join(_quote(v) for v in dep_vars)
+    formula = f"{dep_formula} ~ C({_quote(group_col)})"
 
     # KNIME string columns arrive as pandas StringDtype ("string[python]").
     # patsy (used internally by statsmodels' formula API) calls
@@ -62,7 +67,8 @@ def run_manova(df, dep_vars, group_col, alpha=0.05):
         result = maov.mv_test()
 
     # Extract Pillai's Trace for the grouping factor
-    factor_key = f"C({group_col})"
+    # Key must match what patsy emits, which includes the Q() quoting
+    factor_key = f"C({_quote(group_col)})"
     stat_df = result.results[factor_key]["stat"]
     pillai_row = stat_df.loc["Pillai's trace"]
 
@@ -102,7 +108,7 @@ def format_basic_results(manova_result):
     return pd.DataFrame(
         {
             "Factor": [manova_result["factor"]],
-            "Pillai's P-Value": [manova_result["p_value"]],
+            "P-Value": [manova_result["p_value"]],
             "Conclusion": [conclusion],
         }
     )
@@ -119,8 +125,7 @@ def format_advanced_results(manova_result):
     return pd.DataFrame(
         {
             "Source": [manova_result["factor"]],
-            "Test Stat": ["Pillai's Trace"],
-            "Value": [manova_result["pillai_value"]],
+            "Statistic": [manova_result["pillai_value"]],
             "Numerator Df": [manova_result["num_df"]],
             "Denominator Df": [manova_result["den_df"]],
             "F-Value": [manova_result["f_value"]],
