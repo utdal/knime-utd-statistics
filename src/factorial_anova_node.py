@@ -18,7 +18,7 @@ from .factorial_anova import (
     factor_columns_param,
     include_interactions_param,
     max_interaction_order_param,
-    anova_type_param,
+    AdvancedSettings,
     alpha_param,
     advanced_output_param,
 )
@@ -61,9 +61,11 @@ factorial_anova_category = knext.category(
     description="Detailed coefficient estimates showing the effect size of each factor level.",
 )
 class FactorialAnovaNode:
-    """Tests whether multiple categorical factors (and their interactions) have a significant effect on a continuous outcome variable.
+    """Tests whether categorical factors — individually or in combination — significantly affect a continuous outcome.
 
-    This node performs factorial (N-way) ANOVA to analyze how different grouping factors affect a numeric outcome. It can detect both individual factor effects and interaction effects (when the impact of one factor depends on another factor).
+    The node reports F-statistics, p-values, and significance decisions for each factor and interaction. A second output provides coefficient-level estimates with confidence intervals for each factor level.
+
+    P-values are rounded to 4 decimal places. Values below 0.00005 will appear as 0.0000.
     """
 
     # --- Core Parameters ---
@@ -77,11 +79,17 @@ class FactorialAnovaNode:
         knext.Effect.SHOW,
     )
 
-    anova_type = anova_type_param
     alpha = alpha_param
 
     # --- Output Format ---
+    # Checking this also reveals the Advanced Settings group below
     advanced_output = advanced_output_param
+
+    # Advanced Settings group: only shown when advanced_output is checked
+    advanced_settings = AdvancedSettings().rule(
+        knext.OneOf(advanced_output, [True]),
+        knext.Effect.SHOW,
+    )
 
     def configure(self, cfg_ctx, input_spec):
         """Configure the node's two output table schemas."""
@@ -144,14 +152,25 @@ class FactorialAnovaNode:
                 "Please select different columns for response and factors."
             )
 
+        # Clamp max_interaction_order to the number of selected factors
+        factor_list = list(self.factor_columns)
+        effective_max_order = self.max_interaction_order if self.include_interactions else 1
+
+        if self.include_interactions and self.max_interaction_order > len(factor_list):
+            effective_max_order = len(factor_list)
+            exec_ctx.set_warning(
+                f"Maximum Interaction Order was set to {self.max_interaction_order}, but only "
+                f"{len(factor_list)} factor(s) are selected. Capped at {len(factor_list)}-way interactions."
+            )
+
         # Run factorial ANOVA
         result = run_factorial_anova(
             df=df,
             response_col=self.response_column,
-            factor_cols=list(self.factor_columns),
+            factor_cols=factor_list,
             include_interactions=self.include_interactions,
-            max_interaction_order=self.max_interaction_order if self.include_interactions else 1,
-            anova_type=self.anova_type,
+            max_interaction_order=effective_max_order,
+            anova_type=self.advanced_settings.anova_type,
             alpha=self.alpha,
         )
 
