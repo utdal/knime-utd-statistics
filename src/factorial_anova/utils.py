@@ -97,12 +97,9 @@ max_interaction_order_param = knext.IntParameter(
 
 anova_type_param = knext.EnumParameter(
     label="Sum of Squares Type",
-    description=(
-        "Method for calculating sum of squares. Type II is recommended for balanced data, "
-        "while Type III is better for unbalanced data or interaction studies."
-    ),
+    description="Method used to partition variance between factors. Defaults to Type III.",
     enum=AnovaType,
-    default_value=AnovaType.TYPE_II.name,
+    default_value=AnovaType.TYPE_III.name,
 )
 
 alpha_param = knext.DoubleParameter(
@@ -114,15 +111,19 @@ alpha_param = knext.DoubleParameter(
 )
 
 
+@knext.parameter_group(label="Advanced Settings")
+class AdvancedSettings:
+    anova_type = anova_type_param
+
+
 # --- Output Format Parameter ---
 
 advanced_output_param = knext.BoolParameter(
     label="Include Advanced Statistics",
     description=(
         "Controls the level of detail in the ANOVA Results table.\n\n"
-        "Basic: Summary with Factor, F-Statistic, P-Value, and Conclusion.\n\n"
-        "Advanced: Full variance decomposition with Sum of Squares, Degrees of Freedom, "
-        "Mean Square, Partial Eta Squared effect size, and Conclusion."
+        "• Basic: Factor, F-Statistic, P-Value, Conclusion.\n\n"
+        "• Advanced: Full variance decomposition — Sum of Squares, DF, Mean Square, Partial Eta Squared, Conclusion."
     ),
     default_value=False,
 )

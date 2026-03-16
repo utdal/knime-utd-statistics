@@ -5,6 +5,7 @@ Contains the main computation logic for factorial (N-way) ANOVA analysis
 using statsmodels OLS and formula-based model specification.
 """
 
+import re
 import numpy as np
 import pandas as pd
 import statsmodels.api as sm
@@ -95,6 +96,56 @@ def prepare_anova_data(
 
 
 # =============================================================================
+# Column Name Sanitization
+# =============================================================================
+
+
+def _sanitize_col_name(col: str) -> str:
+    """Convert a column name to a safe Python identifier for use in patsy formulas."""
+    safe = re.sub(r"\W+", "_", col).strip("_")
+    if safe and safe[0].isdigit():
+        safe = "_" + safe
+    return safe or "_col"
+
+
+def _sanitize_dataframe_columns(df: pd.DataFrame, cols: list) -> tuple:
+    """
+    Return (renamed_df, rename_map, reverse_map) for the given columns.
+
+    rename_map  : {original_name: safe_name}
+    reverse_map : {safe_name: original_name}
+
+    Collision-free: if two different original names map to the same safe name,
+    a numeric suffix is appended to keep them distinct.
+    """
+    rename_map = {}
+    reverse_map = {}
+    used: set = set()
+    for col in cols:
+        safe = _sanitize_col_name(col)
+        candidate = safe
+        i = 1
+        while candidate in used:
+            candidate = f"{safe}_{i}"
+            i += 1
+        used.add(candidate)
+        rename_map[col] = candidate
+        reverse_map[candidate] = col
+    return df.rename(columns=rename_map), rename_map, reverse_map
+
+
+def _restore_factor_label(label: str, reverse_map: dict) -> str:
+    """Replace safe column names inside an ANOVA label with their original names.
+
+    Works on labels like ``C(Fertilizer_Type):C(Water)`` produced by patsy.
+    Sorts keys longest-first to avoid partial-match substitutions.
+    """
+    for safe in sorted(reverse_map, key=len, reverse=True):
+        label = label.replace(safe, reverse_map[safe])
+    return label
+
+
+# =============================================================================
 # Formula Construction
 # =============================================================================
 
@@ -134,31 +185,28 @@ def build_anova_formula(
 
     >>> build_anova_formula("Y", ["A", "B", "C"], True, 2)
     'Y ~ C(A) + C(B) + C(C) + C(A):C(B) + C(A):C(C) + C(B):C(C)'
+
+    Column names must already be safe Python identifiers (no spaces or special
+    characters). Use :func:`_sanitize_dataframe_columns` before calling this.
     """
-
-    def _quote(col: str) -> str:
-        """Safely quote a column name for use in a patsy formula via Q()."""
-        escaped = col.replace("\\", "\\\\").replace('"', r"\"")
-        return f'Q("{escaped}")'
-
-    resp = _quote(response_col)
+    resp = response_col
 
     if not include_interactions:
         # Main effects only
-        terms = [f"C({_quote(col)})" for col in factor_cols]
+        terms = [f"C({col})" for col in factor_cols]
         return f"{resp} ~ {' + '.join(terms)}"
 
     if max_order >= len(factor_cols):
         # Full factorial (all interactions up to n-way)
-        terms = [f"C({_quote(col)})" for col in factor_cols]
+        terms = [f"C({col})" for col in factor_cols]
         return f"{resp} ~ {' * '.join(terms)}"
 
     # Custom interaction depth (e.g., max_order=2 for 2-way only)
-    terms = [f"C({_quote(col)})" for col in factor_cols]  # Main effects
+    terms = [f"C({col})" for col in factor_cols]  # Main effects
 
     for order in range(2, max_order + 1):
         for combo in combinations(factor_cols, order):
-            interaction_term = ":".join([f"C({_quote(c)})" for c in combo])
+            interaction_term = ":".join([f"C({c})" for c in combo])
             terms.append(interaction_term)
 
     return f"{resp} ~ {' + '.join(terms)}"
@@ -410,8 +458,12 @@ def run_factorial_anova(
             "Consider using Type III SS for accurate interaction effects in unbalanced data."
         )
 
-    # Step 3: Build formula
-    formula = build_anova_formula(response_col, factor_cols, include_interactions, max_interaction_order)
+    # Step 3: Sanitize column names so patsy never needs Q() quoting, then build formula
+    work_df, rename_map, reverse_map = _sanitize_dataframe_columns(work_df, [response_col] + list(factor_cols))
+    safe_response = rename_map[response_col]
+    safe_factors = [rename_map[c] for c in factor_cols]
+
+    formula = build_anova_formula(safe_response, safe_factors, include_interactions, max_interaction_order)
 
     # Step 4: Fit OLS model
     try:
@@ -433,9 +485,12 @@ def run_factorial_anova(
 
     anova_table = sm.stats.anova_lm(model, typ=anova_type_num)
 
-    # Step 6: Format output tables
+    # Step 6: Format output tables, then restore original column names in labels
     basic_table = format_basic_anova_table(anova_table, alpha)
     advanced_table = format_advanced_anova_table(anova_table, alpha)
+
+    basic_table["Factor"] = basic_table["Factor"].apply(lambda s: _restore_factor_label(s, reverse_map))
+    advanced_table["Source"] = advanced_table["Source"].apply(lambda s: _restore_factor_label(s, reverse_map))
 
     # Step 7: Always generate coefficient table
     coefficient_table = format_coefficient_table(model)
