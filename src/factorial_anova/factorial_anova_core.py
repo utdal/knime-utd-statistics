@@ -13,7 +13,7 @@ from statsmodels.formula.api import ols
 from itertools import combinations
 from typing import List, Dict, Any
 
-from .utils import format_p_value
+from src.utils import format_p_value
 
 
 # =============================================================================
