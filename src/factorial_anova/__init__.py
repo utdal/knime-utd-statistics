@@ -14,7 +14,6 @@ from .utils import (
     include_interactions_param,
     max_interaction_order_param,
     anova_type_param,
-    AdvancedSettings,
     alpha_param,
     advanced_output_param,
     # Helpers
@@ -31,7 +30,6 @@ __all__ = [
     "include_interactions_param",
     "max_interaction_order_param",
     "anova_type_param",
-    "AdvancedSettings",
     "alpha_param",
     "advanced_output_param",
     "is_numeric",

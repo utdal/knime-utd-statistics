@@ -119,12 +119,6 @@ alpha_param = knext.DoubleParameter(
     max_value=0.5,
 )
 
-
-@knext.parameter_group(label="Advanced Settings")
-class AdvancedSettings:
-    anova_type = anova_type_param
-
-
 # --- Output Format Parameter ---
 
 advanced_output_param = knext.BoolParameter(

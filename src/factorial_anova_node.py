@@ -18,9 +18,9 @@ from .factorial_anova import (
     factor_columns_param,
     include_interactions_param,
     max_interaction_order_param,
-    AdvancedSettings,
     alpha_param,
     advanced_output_param,
+    anova_type_param,
 )
 
 
@@ -69,6 +69,8 @@ class FactorialAnovaNode:
     # --- Core Parameters ---
     response_column = response_column_param
     factor_columns = factor_columns_param
+    alpha = alpha_param
+
     include_interactions = include_interactions_param
 
     # Conditional parameter: only show when interactions are enabled
@@ -77,13 +79,11 @@ class FactorialAnovaNode:
         knext.Effect.SHOW,
     )
 
-    alpha = alpha_param
+    anova_type = anova_type_param
 
     # --- Output Format ---
     # Checking this also reveals the Advanced Settings group below
     advanced_output = advanced_output_param
-
-    advanced_settings = AdvancedSettings()
 
     def configure(self, cfg_ctx, input_spec):
         """Configure the node's two output table schemas."""
@@ -164,7 +164,7 @@ class FactorialAnovaNode:
             factor_cols=factor_list,
             include_interactions=self.include_interactions,
             max_interaction_order=effective_max_order,
-            anova_type=self.advanced_settings.anova_type,
+            anova_type=self.anova_type,
             alpha=self.alpha,
         )
 
