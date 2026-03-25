@@ -41,31 +41,7 @@ def format_p_value(p) -> float:
     return round(val, 4)
 
 
-# ── Data Format Enum & Parameter ───────────────────────────────────────────────
-
-
-class DataFormat(knext.EnumParameterOptions):
-    LONG = (
-        "Long Format",
-        "Each row is one measurement for one participant. "
-        "You will select separate columns for the measured value, the condition, and the participant ID.",
-    )
-    WIDE = (
-        "Wide Format",
-        "Each row is one participant, with a separate column for each condition or time point. "
-        "You will select those columns along with a column that identifies each participant.",
-    )
-
-
-data_format_param = knext.EnumParameter(
-    label="Data Format",
-    description="",
-    enum=DataFormat,
-    default_value=DataFormat.LONG.name,
-)
-
-
-# ── Long Format Parameters ─────────────────────────────────────────────────────
+# ── Parameters ────────────────────────────────────────────────────────────────
 
 dv_column_param = knext.ColumnParameter(
     label="Dependent Variable",
@@ -82,20 +58,6 @@ within_factor_param = knext.ColumnParameter(
 subject_id_param = knext.ColumnParameter(
     label="Subject Identifier",
     description=("The column that uniquely identifies each participant. "),
-    column_filter=is_subject_id,
-)
-
-
-# ── Wide Format Parameters ─────────────────────────────────────────────────────
-
-wide_columns_param = knext.MultiColumnParameter(
-    label="Measurement Columns",
-    description=("Select minimum two columns that represent your repeated measurements"),
-)
-
-wide_subject_id_param = knext.ColumnParameter(
-    label="Subject Identifier",
-    description=("The column that uniquely identifies each participant."),
     column_filter=is_subject_id,
 )
 

@@ -2,7 +2,7 @@
 Repeated Measures ANOVA package.
 
 Provides one-way repeated measures ANOVA via statsmodels with support for:
-  - Long Format and Wide Format (auto-reshaped via pd.melt)
+  - Long Format only
   - Greenhouse-Geisser sphericity correction (manual computation via scipy)
   - Basic output (executive summary) and Advanced output (technical validation)
 """
@@ -15,13 +15,9 @@ from .rm_anova_core import (
 )
 
 from .utils import (
-    DataFormat,
-    data_format_param,
     dv_column_param,
     within_factor_param,
     subject_id_param,
-    wide_columns_param,
-    wide_subject_id_param,
     alpha_param,
     advanced_output_param,
     is_numeric,
@@ -37,13 +33,9 @@ __all__ = [
     "build_basic_output",
     "build_advanced_output",
     # Parameters
-    "DataFormat",
-    "data_format_param",
     "dv_column_param",
     "within_factor_param",
     "subject_id_param",
-    "wide_columns_param",
-    "wide_subject_id_param",
     "alpha_param",
     "advanced_output_param",
     # Utilities
