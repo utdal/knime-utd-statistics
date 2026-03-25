@@ -74,10 +74,7 @@ alpha_param = knext.DoubleParameter(
 
 advanced_output_param = knext.BoolParameter(
     label="Compute advanced statistics",
-    description=(
-        "When checked, shows the full statistical breakdown, including "
-        "all intermediate calculations and assumption check results."
-    ),
+    description=("When checked, shows the full statistical breakdown, including all intermediate calculations and assumption check results."),
     default_value=False,
     is_advanced=True,
 )
