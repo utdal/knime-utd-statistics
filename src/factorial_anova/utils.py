@@ -17,8 +17,13 @@ def is_numeric(col: knext.Column) -> bool:
     return col.ktype in (knext.double(), knext.int32(), knext.int64())
 
 
+def is_categorical(col: knext.Column) -> bool:
+    """Filter for categorical columns (string, boolean)."""
+    return col.ktype in (knext.string(), knext.bool_())
+
+
 def format_p_value(p):
-    """Round a p-value to 4 decimal places, returning a numeric float.
+    """Return a p-value as a full-precision float.
 
     Returns ``float('nan')`` for missing or unrecognised values so the
     P-Value column stays ``knext.double()`` and is usable by downstream
@@ -28,7 +33,7 @@ def format_p_value(p):
 
     if pd.isna(p):
         return float("nan")
-    return round(float(p), 4)
+    return float(p)
 
 
 # =============================================================================
@@ -69,6 +74,7 @@ response_column_param = knext.ColumnParameter(
 factor_columns_param = knext.MultiColumnParameter(
     label="Factor Variables",
     description="Select one or more categorical grouping variables to test their effect on the outcome.",
+    column_filter=is_categorical,
 )
 
 include_interactions_param = knext.BoolParameter(
@@ -79,6 +85,7 @@ include_interactions_param = knext.BoolParameter(
 
 • Unchecked: Main effects only (e.g., A + B)""",
     default_value=True,
+    is_advanced=True,
 )
 
 max_interaction_order_param = knext.IntParameter(
@@ -93,6 +100,7 @@ max_interaction_order_param = knext.IntParameter(
     default_value=2,
     min_value=2,
     max_value=4,
+    is_advanced=True,
 )
 
 anova_type_param = knext.EnumParameter(
@@ -100,6 +108,7 @@ anova_type_param = knext.EnumParameter(
     description="Method used to partition variance between factors. Defaults to Type III.",
     enum=AnovaType,
     default_value=AnovaType.TYPE_III.name,
+    is_advanced=True,
 )
 
 alpha_param = knext.DoubleParameter(
@@ -119,11 +128,12 @@ class AdvancedSettings:
 # --- Output Format Parameter ---
 
 advanced_output_param = knext.BoolParameter(
-    label="Include Advanced Statistics",
+    label="Compute advanced statistics",
     description=(
         "Controls the level of detail in the ANOVA Results table.\n\n"
         "• Basic: Factor, F-Statistic, P-Value, Conclusion.\n\n"
         "• Advanced: Full variance decomposition — Sum of Squares, DF, Mean Square, Partial Eta Squared, Conclusion."
     ),
     default_value=False,
+    is_advanced=True,
 )

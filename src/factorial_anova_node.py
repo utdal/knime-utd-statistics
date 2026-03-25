@@ -64,8 +64,6 @@ class FactorialAnovaNode:
     """Tests whether categorical factors — individually or in combination — significantly affect a continuous outcome.
 
     The node reports F-statistics, p-values, and significance decisions for each factor and interaction. A second output provides coefficient-level estimates with confidence intervals for each factor level.
-
-    P-values are rounded to 4 decimal places. Values below 0.00005 will appear as 0.0000.
     """
 
     # --- Core Parameters ---
@@ -85,11 +83,7 @@ class FactorialAnovaNode:
     # Checking this also reveals the Advanced Settings group below
     advanced_output = advanced_output_param
 
-    # Advanced Settings group: only shown when advanced_output is checked
-    advanced_settings = AdvancedSettings().rule(
-        knext.OneOf(advanced_output, [True]),
-        knext.Effect.SHOW,
-    )
+    advanced_settings = AdvancedSettings()
 
     def configure(self, cfg_ctx, input_spec):
         """Configure the node's two output table schemas."""
