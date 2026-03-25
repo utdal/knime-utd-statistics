@@ -50,7 +50,7 @@ dv_column_param = knext.ColumnParameter(
 )
 
 within_factor_param = knext.ColumnParameter(
-    label="Within-Subject Factor",
+    label="Within-Subject Factor Variable",
     description=("The column that identifies which condition or time point each row belongs to."),
     column_filter=is_nominal,
 )
