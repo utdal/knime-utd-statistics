@@ -18,9 +18,12 @@ from .factorial_anova import (
     factor_columns_param,
     include_interactions_param,
     max_interaction_order_param,
-    alpha_param,
     advanced_output_param,
     anova_type_param,
+)
+
+from .utils import (
+    alpha_param
 )
 
 
