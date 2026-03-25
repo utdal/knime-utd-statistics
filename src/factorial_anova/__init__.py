@@ -19,6 +19,7 @@ from .utils import (
     advanced_output_param,
     # Helpers
     is_numeric,
+    is_categorical,
     format_p_value,
 )
 
@@ -34,5 +35,6 @@ __all__ = [
     "alpha_param",
     "advanced_output_param",
     "is_numeric",
+    "is_categorical",
     "format_p_value",
 ]
