@@ -39,7 +39,7 @@ data_column_param = knext.ColumnParameter(
 )
 
 group_column_param = knext.ColumnParameter(
-    label="Grouping Variable",
+    label="Factor Variable",
     description="Categorical column containing the group assignments.",
     column_filter=is_string,
 )

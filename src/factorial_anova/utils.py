@@ -66,7 +66,7 @@ class AnovaType(knext.EnumParameterOptions):
 # --- Core Analysis Parameters ---
 
 response_column_param = knext.ColumnParameter(
-    label="Response Variable",
+    label="Dependent Variable",
     description="Numeric column containing the outcome you want to analyze.",
     column_filter=is_numeric,
 )
