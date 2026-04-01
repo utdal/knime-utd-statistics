@@ -1,0 +1,10 @@
+Type,Information,Measure,Std Error,P-Value
+Coefficient,const,2.242070929,0.2694136059,0.0
+Coefficient,X1,2.887950119,0.1055633201,0.0
+Coefficient,X2,1.485250961,0.05026339214,0.0
+Model statistic,R-squared,0.9363767825,,
+Model statistic,Adjusted R-squared,0.9350649636,,
+Test statistic,F-statistic,713.8003346,,0.0
+Model statistic,No. Observations,100,,
+Model statistic,Df Residuals,97,,
+Model statistic,Df Model,2,,
