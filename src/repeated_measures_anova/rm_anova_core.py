@@ -395,7 +395,7 @@ def build_advanced_output(result: dict, alpha: float) -> pd.DataFrame:
                 "Mauchly's P-Value": np.nan,
                 "Epsilon (Greenhouse-Geisser)": np.nan,
                 "Effect Size (Partial Eta Squared)": np.nan,
-                "Conclusion": "",
+                "Conclusion": None,
             }
         )
 

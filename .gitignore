@@ -227,15 +227,6 @@ features/
 plugins/
 
 CHANGES.md
-test_data
-
-<<<<<<< HEAD
 .DS_Store
-<<<<<<< HEAD
-=======
-.DS_Store
->>>>>>> 53bc214 (Ignore DS_Store & remove tracked copies)
-=======
+config.yml
 test_data/
-
->>>>>>> 2026fc7 (multi-column normality + fixed issue of text rendering. ANOVA port restructure)

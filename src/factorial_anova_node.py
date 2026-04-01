@@ -94,7 +94,7 @@ class FactorialAnovaNode:
                     knext.Column(knext.string(), "Source"),
                     knext.Column(knext.double(), "Sum Sq"),
                     knext.Column(knext.double(), "Mean Sq"),
-                    knext.Column(knext.int64(), "DF"),
+                    knext.Column(knext.int32(), "DF"),
                     knext.Column(knext.double(), "F-Statistic"),
                     knext.Column(knext.double(), "P-Value"),
                     knext.Column(knext.double(), "Partial Eta Squared"),
@@ -176,6 +176,7 @@ class FactorialAnovaNode:
         # Format output based on advanced_output setting
         if self.advanced_output:
             anova_df = self._format_advanced_anova_table(result["advanced_table"])
+            anova_df["DF"] = pd.to_numeric(anova_df["DF"], errors="raise").astype("int32")
         else:
             anova_df = result["basic_table"]
 

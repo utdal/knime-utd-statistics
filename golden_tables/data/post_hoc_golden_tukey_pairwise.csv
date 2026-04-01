@@ -1,0 +1,4 @@
+Comparison,Post-Hoc Method,Mean Difference,Corrected p-Value,Difference is Significant?
+A vs B,Tukey HSD,4.905323446,0.000000000,Yes
+A vs C,Tukey HSD,10.14460819,0.000000000,Yes
+B vs C,Tukey HSD,5.239284743,0.000000000,Yes

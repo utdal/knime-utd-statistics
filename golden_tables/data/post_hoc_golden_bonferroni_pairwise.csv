@@ -1,0 +1,4 @@
+Comparison,Post-Hoc Method,Mean Difference,Corrected p-Value,Difference is Significant?
+A vs B,Holm-Bonferroni,-4.905323446,1.493282674e-18,Yes
+A vs C,Holm-Bonferroni,-10.14460819,5.973707443e-30,Yes
+B vs C,Holm-Bonferroni,-5.239284743,5.832534674e-20,Yes

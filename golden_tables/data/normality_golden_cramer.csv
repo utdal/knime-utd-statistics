@@ -1,0 +1,4 @@
+Column Tested,Test Method,Sample Size (n),Test Statistic,P-Value,Statistical Decision
+normal_col,Cramer-von Mises,100,0.154997948,0.3751758582,Do not reject normality
+uniform_col,Cramer-von Mises,100,6.830252062,1.181105214e-10,Reject normality
+skewed_col,Cramer-von Mises,100,9.392301554,5.834763783e-10,Reject normality

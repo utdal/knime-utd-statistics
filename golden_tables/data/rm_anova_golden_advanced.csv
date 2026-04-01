@@ -1,0 +1,3 @@
+Source,Sum of Squares,Degrees of Freedom,Mean Square,F Statistic,P-Value (Uncorrected),P-Value (Greenhouse-Geisser Corrected),Mauchly's W,Mauchly's P-Value,Epsilon (Greenhouse-Geisser),Effect Size (Partial Eta Squared),Conclusion
+Time Point,2532.196256,3.0,844.0654187,3869.290538,0,0,0.7715439356,0.4269,0.8637664541,0.9951135339,Significant
+Error,12.43425077,57.0,0.2181447504,,,,,,,,""

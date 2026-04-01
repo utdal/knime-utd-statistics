@@ -1,0 +1,4 @@
+Column Tested,Test Method,Sample Size (n),Test Statistic,P-Value,Statistical Decision
+normal_col,Anderson-Darling,100,0.2534339588,0.7268427515,Do not reject normality
+uniform_col,Anderson-Darling,100,1.500510241,0.0006780018708,Reject normality
+skewed_col,Anderson-Darling,100,3.905747731,8.478444231e-10,Reject normality
