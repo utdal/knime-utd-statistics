@@ -38,7 +38,7 @@ OUTPUT_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "data")
 os.makedirs(OUTPUT_DIR, exist_ok=True)
 
 ALPHA = 0.05
-ANOVA_TYPE = 3   # Type III SS
+ANOVA_TYPE = 3  # Type III SS
 
 
 def save(df: pd.DataFrame, name: str) -> None:
@@ -56,9 +56,10 @@ def _format_p_value(p) -> float:
     except (TypeError, ValueError):
         return float("nan")
     import math
+
     if math.isnan(val):
         return float("nan")
-    return val   # no rounding — matches the PR change in utils.py
+    return val  # no rounding — matches the PR change in utils.py
 
 
 # ---------------------------------------------------------------------------
@@ -70,8 +71,8 @@ np.random.seed(42)
 
 levels_a = ["A1", "A2", "A3"]
 levels_b = ["B1", "B2"]
-factor_means = {"A1": 10.0, "A2": 20.0, "A3": 30.0}   # large main effect for A
-b_shift = {"B1": 0.0, "B2": 5.0}                         # main effect for B
+factor_means = {"A1": 10.0, "A2": 20.0, "A3": 30.0}  # large main effect for A
+b_shift = {"B1": 0.0, "B2": 5.0}  # main effect for B
 
 rows = []
 for la in levels_a:

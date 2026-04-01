@@ -60,6 +60,7 @@ def _format_p_value(p) -> float:
     except (TypeError, ValueError):
         return float("nan")
     import math
+
     if math.isnan(val):
         return float("nan")
     return round(val, 4)

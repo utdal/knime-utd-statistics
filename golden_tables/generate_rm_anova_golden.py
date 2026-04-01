@@ -54,6 +54,7 @@ def _format_p_value(p) -> float:
     except (TypeError, ValueError):
         return float("nan")
     import math
+
     if math.isnan(val):
         return float("nan")
     return round(val, 4)
@@ -92,12 +93,12 @@ n = len(subjects)
 
 # Pivot: rows = subjects, columns = time points (sorted)
 pivot = df_input.pivot_table(index=SUBJECT, columns=WITHIN, values=DV, aggfunc="mean")
-pivot = pivot[levels]   # enforce sorted order
-X_mat = pivot.values   # (n, k)
+pivot = pivot[levels]  # enforce sorted order
+X_mat = pivot.values  # (n, k)
 
 grand_mean = X_mat.mean()
-condition_means = X_mat.mean(axis=0)   # (k,)
-subject_means = X_mat.mean(axis=1)     # (n,)
+condition_means = X_mat.mean(axis=0)  # (k,)
+subject_means = X_mat.mean(axis=1)  # (n,)
 
 SS_factor = float(n * np.sum((condition_means - grand_mean) ** 2))
 SS_within = float(np.sum((X_mat - subject_means[:, np.newaxis]) ** 2))
@@ -125,9 +126,9 @@ else:
         C[j + 1, j] = -1.0
         C[:, j] *= np.sqrt((j + 1) / (j + 2))
 
-    Y = X_mat @ C          # (n, k-1)
+    Y = X_mat @ C  # (n, k-1)
     pp = k - 1
-    S = np.cov(Y, rowvar=False, ddof=1)   # (pp, pp)
+    S = np.cov(Y, rowvar=False, ddof=1)  # (pp, pp)
 
     det_S = np.linalg.det(S)
     trace_S = np.trace(S)

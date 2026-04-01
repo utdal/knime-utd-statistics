@@ -74,7 +74,7 @@ save(df_input, "manova_input.csv")
 df_manova = df_input.copy()
 df_manova[GROUP_COL] = df_manova[GROUP_COL].astype(object)
 
-dep_formula = ' + '.join(f'Q("{v}")' for v in DEP_VARS)
+dep_formula = " + ".join(f'Q("{v}")' for v in DEP_VARS)
 formula = f'{dep_formula} ~ C(Q("{GROUP_COL}"))'
 
 with warnings.catch_warnings():

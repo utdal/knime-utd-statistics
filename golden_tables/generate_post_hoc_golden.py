@@ -69,10 +69,7 @@ save(df_input, "post_hoc_input.csv")
 # One-Way ANOVA  (shared between both methods)
 # scipy.stats.f_oneway — no rounding applied to ANOVA p-value
 # ---------------------------------------------------------------------------
-group_data = {
-    lbl: df_input.loc[df_input[GROUP_COL] == lbl, DATA_COL].values
-    for lbl in sorted(df_input[GROUP_COL].unique())
-}
+group_data = {lbl: df_input.loc[df_input[GROUP_COL] == lbl, DATA_COL].values for lbl in sorted(df_input[GROUP_COL].unique())}
 _, anova_p = f_oneway(*group_data.values())
 is_significant = anova_p <= ALPHA
 

@@ -72,7 +72,7 @@ for col in COLUMNS:
         {
             "Column Tested": col,
             "Test Method": "Anderson-Darling",
-            "Sample Size (n)": int(len(arr)),      # int32 in KNIME schema
+            "Sample Size (n)": int(len(arr)),  # int32 in KNIME schema
             "Test Statistic": float(statistic),
             "P-Value": float(p_value),
             "Statistical Decision": _decision(p_value),
