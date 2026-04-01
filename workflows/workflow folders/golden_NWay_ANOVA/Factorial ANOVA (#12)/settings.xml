@@ -12,20 +12,17 @@
             <entry key="0" type="xstring" value="FactorA"/>
             <entry key="1" type="xstring" value="FactorB"/>
         </config>
+        <entry key="alpha" type="xdouble" value="0.05"/>
         <entry key="include_interactions" type="xboolean" value="true"/>
         <entry key="max_interaction_order" type="xint" value="2"/>
-        <entry key="alpha" type="xdouble" value="0.05"/>
+        <entry key="anova_type" type="xstring" value="TYPE_III"/>
         <entry key="advanced_output" type="xboolean" value="true"/>
-        <config key="advanced_settings">
-            <entry key="json-type_Internals" type="xstring" value="OBJECT"/>
-            <entry key="anova_type" type="xstring" value="TYPE_III"/>
-        </config>
         <entry key="json-type_Internals" type="xstring" value="OBJECT"/>
         <entry key="extension_version_Internals" type="xstring" value="1.0.0"/>
     </config>
     <config key="variables"/>
     <entry key="customDescription" type="xstring" isnull="true" value=""/>
-    <entry key="state" type="xstring" value="CONFIGURED"/>
+    <entry key="state" type="xstring" value="EXECUTED"/>
     <entry key="factory" type="xstring" value="org.knime.python3.nodes.extension.ExtensionNodeSetFactory$DynamicExtensionNodeFactory"/>
     <entry key="node-name" type="xstring" value="Factorial ANOVA"/>
     <entry key="node-bundle-name" type="xstring" value="KNIME Python 3 - Nodes"/>
@@ -47,20 +44,26 @@
         <config key="Output Model Coefficients # 1"/>
     </config>
     <entry key="name" type="xstring" value="Factorial ANOVA"/>
-    <entry key="hasContent" type="xboolean" value="false"/>
+    <entry key="hasContent" type="xboolean" value="true"/>
     <entry key="isInactive" type="xboolean" value="false"/>
     <config key="ports">
         <config key="port_1">
             <entry key="index" type="xint" value="1"/>
-            <entry key="port_dir_location" type="xstring" isnull="true" value=""/>
+            <entry key="port_spec_class" type="xstring" value="org.knime.core.data.DataTableSpec"/>
+            <entry key="port_object_class" type="xstring" value="org.knime.core.node.BufferedDataTable"/>
+            <entry key="port_object_summary" type="xstring" value="Rows: 5, Cols: 8"/>
+            <entry key="port_dir_location" type="xstring" value="port_1"/>
         </config>
         <config key="port_2">
             <entry key="index" type="xint" value="2"/>
-            <entry key="port_dir_location" type="xstring" isnull="true" value=""/>
+            <entry key="port_spec_class" type="xstring" value="org.knime.core.data.DataTableSpec"/>
+            <entry key="port_object_class" type="xstring" value="org.knime.core.node.BufferedDataTable"/>
+            <entry key="port_object_summary" type="xstring" value="Rows: 6, Cols: 6"/>
+            <entry key="port_dir_location" type="xstring" value="port_2"/>
         </config>
     </config>
     <config key="filestores">
         <entry key="file_store_location" type="xstring" isnull="true" value=""/>
-        <entry key="file_store_id" type="xstring" isnull="true" value=""/>
+        <entry key="file_store_id" type="xstring" value="c6752719-0c19-446a-bcf2-bdfe91223b19"/>
     </config>
 </config>

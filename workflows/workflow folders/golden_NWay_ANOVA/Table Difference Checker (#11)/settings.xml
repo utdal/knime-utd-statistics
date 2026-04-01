@@ -58,7 +58,7 @@
                     <entry key="SettingsModelID" type="xstring" value="SMID_double"/>
                     <entry key="EnabledStatus" type="xboolean" value="true"/>
                 </config>
-                <entry key="epsilon" type="xdouble" value="0.01"/>
+                <entry key="epsilon" type="xdouble" value="1.0E-8"/>
             </config>
         </config>
         <config key="columnConfig_Sum Sq">
@@ -88,7 +88,7 @@
                     <entry key="SettingsModelID" type="xstring" value="SMID_double"/>
                     <entry key="EnabledStatus" type="xboolean" value="true"/>
                 </config>
-                <entry key="epsilon" type="xdouble" value="0.01"/>
+                <entry key="epsilon" type="xdouble" value="1.0E-6"/>
             </config>
         </config>
         <config key="columnConfig_Partial Eta Squared">
@@ -118,7 +118,7 @@
                     <entry key="SettingsModelID" type="xstring" value="SMID_double"/>
                     <entry key="EnabledStatus" type="xboolean" value="true"/>
                 </config>
-                <entry key="epsilon" type="xdouble" value="0.01"/>
+                <entry key="epsilon" type="xdouble" value="1.0E-6"/>
             </config>
         </config>
         <config key="columnConfig_Mean Sq">
@@ -148,7 +148,7 @@
                     <entry key="SettingsModelID" type="xstring" value="SMID_double"/>
                     <entry key="EnabledStatus" type="xboolean" value="true"/>
                 </config>
-                <entry key="epsilon" type="xdouble" value="0.01"/>
+                <entry key="epsilon" type="xdouble" value="1.0E-6"/>
             </config>
         </config>
         <config key="columnConfig_Source">
@@ -203,7 +203,7 @@
                     <entry key="SettingsModelID" type="xstring" value="SMID_double"/>
                     <entry key="EnabledStatus" type="xboolean" value="true"/>
                 </config>
-                <entry key="epsilon" type="xdouble" value="0.01"/>
+                <entry key="epsilon" type="xdouble" value="1.0E-6"/>
             </config>
         </config>
         <config key="columnConfig_Conclusion">
@@ -234,7 +234,7 @@
         <entry key="ignoreRowIds" type="xboolean" value="false"/>
     </config>
     <entry key="customDescription" type="xstring" isnull="true" value=""/>
-    <entry key="state" type="xstring" value="CONFIGURED"/>
+    <entry key="state" type="xstring" value="EXECUTED"/>
     <entry key="factory" type="xstring" value="org.knime.testing.internal.nodes.differ.DifferenceCheckerNodeFactory"/>
     <entry key="node-name" type="xstring" value="Table Difference Checker"/>
     <entry key="node-bundle-name" type="xstring" value="Test-Node extension for KNIME Workbench"/>
@@ -247,11 +247,11 @@
     <entry key="node-feature-version" type="xstring" value="5.8.3.v202603112120"/>
     <config key="factory_settings"/>
     <entry key="name" type="xstring" value="Table Difference Checker"/>
-    <entry key="hasContent" type="xboolean" value="false"/>
+    <entry key="hasContent" type="xboolean" value="true"/>
     <entry key="isInactive" type="xboolean" value="false"/>
     <config key="ports"/>
     <config key="filestores">
         <entry key="file_store_location" type="xstring" isnull="true" value=""/>
-        <entry key="file_store_id" type="xstring" isnull="true" value=""/>
+        <entry key="file_store_id" type="xstring" value="0798306e-695a-4453-a556-08597f065943"/>
     </config>
 </config>

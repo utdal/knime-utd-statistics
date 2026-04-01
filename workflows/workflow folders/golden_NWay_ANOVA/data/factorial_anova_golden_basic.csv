@@ -1,0 +1,5 @@
+Factor,F-Statistic,P-Value,Conclusion
+Intercept,406.9600544,8.23166677e-27,Significant
+C(FactorA),296.875337,7.355613986e-30,Significant
+C(FactorB),10.90589507,0.001704422193,Significant
+C(FactorA):C(FactorB),5.113207501,0.009254695268,Significant

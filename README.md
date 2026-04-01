@@ -23,6 +23,7 @@ This KNIME Python extension provides a suite of statistical analysis nodes for h
 │   └── rm_anova.png                     # Repeated Measures ANOVA icon
 ├── src/
 │   ├── __init__.py
+│   ├── utils.py                         # Shared helpers and parameter definitions
 │   ├── normality_node.py
 │   ├── normality_tests/
 │   ├── post_hoc_node.py
@@ -35,8 +36,15 @@ This KNIME Python extension provides a suite of statistical analysis nodes for h
 │   ├── manova/
 │   ├── repeated_measures_anova_node.py
 │   └── repeated_measures_anova/
-├── test_data/                           # CSV fixtures for unit tests
-├── workflows/                           # Demo KNIME workflow
+├── golden_tables/                       # Golden reference tables and CSV fixtures
+│   ├── data/                            # CSV test datasets
+│   ├── generate_normality_golden.py
+│   ├── generate_post_hoc_golden.py
+│   ├── generate_heteroskedasticity_golden.py
+│   ├── generate_factorial_anova_golden.py
+│   ├── generate_manova_golden.py
+│   └── generate_rm_anova_golden.py
+├── workflows/                           # Demo KNIME workflows (.knwf)
 ├── knime.yml                            # Extension metadata
 ├── pixi.toml                            # Dependency management
 ├── pixi.lock                            # Locked dependency versions
@@ -151,16 +159,11 @@ Tests whether the same participants respond differently across conditions or tim
 
 ## Testing
 
-Unit tests are located in the repository root (e.g. `test_factorial_anova.py`, `test_repeated_measures_anova.py`). Test data fixtures live in `test_data/`.
+Golden reference tables and CSV fixtures live in `golden_tables/`, alongside scripts to regenerate them. Each node has a corresponding KNIME workflow in `workflows/` (e.g. `golden_NWay_ANOVA.knwf`, `golden_MANOVA.knwf`) that can be used to validate output end-to-end inside KNIME Analytics Platform.
 
 Run all tests with:
 ```bash
 pixi run test
-```
-
-For a specific test file:
-```bash
-pixi run python -m pytest test_factorial_anova.py -v
 ```
 
 ---
