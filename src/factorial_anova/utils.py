@@ -6,7 +6,7 @@ Contains parameter definitions, enums, and helper functions for the Factorial AN
 
 import knime.extension as knext
 
-from src.utils import alpha_param, format_p_value, is_categorical, is_numeric
+from src.utils import is_categorical, is_numeric
 
 # =============================================================================
 # Enum Definitions
