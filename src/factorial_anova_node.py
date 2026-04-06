@@ -22,7 +22,7 @@ from .factorial_anova import (
     anova_type_param,
 )
 
-from .utils import alpha_param
+from src.utils import alpha_param
 
 
 # =============================================================================
