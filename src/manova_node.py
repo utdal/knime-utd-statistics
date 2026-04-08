@@ -51,8 +51,7 @@ utd_category = knext.category(
     description="[Box's M test](https://en.wikipedia.org/wiki/Box%27s_M_test) for equality of covariance matrices across groups.",
 )
 class ManovaNode:
-    """
-    Performs one-way Multivariate Analysis of Variance (MANOVA) using Pillai's Trace.
+    """Performs one-way Multivariate Analysis of Variance (MANOVA) using Pillai's Trace.
 
     MANOVA tests whether group means differ across multiple dependent variables simultaneously.
 
