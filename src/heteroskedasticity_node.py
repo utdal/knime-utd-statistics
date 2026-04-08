@@ -68,8 +68,7 @@ utd_category = knext.category(
     description="Output table containing the target variable, model predictions, and residuals (actual minus predicted values).",
 )
 class HeteroskedasticityNode:
-    """
-    Tests whether a regression model shows heteroskedasticity (non-constant error variance).
+    """Tests whether a regression model shows heteroskedasticity (non-constant error variance).
 
     This node first fits an ordinary least squares (OLS) regression model from your selected target
     and predictor variables. It then runs the selected heteroskedasticity test (Breusch-Pagan, White,

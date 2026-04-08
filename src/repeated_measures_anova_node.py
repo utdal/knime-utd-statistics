@@ -65,7 +65,7 @@ utd_category = knext.category(
     ),
 )
 class RepeatedMeasuresAnovaNode:
-    """
+    """Performs repeated measures ANOVA to test for mean differences in subjects across multiple conditions/time points.
 
     Repeated Measures ANOVA tests whether the same participants respond differently across multiple conditions or time points.
     Because the same people are measured more than once, the test accounts for individual differences and focuses on whether the changes across conditions are meaningful.

@@ -50,8 +50,7 @@ utd_category = knext.category(
     description="Output table reflecting all pairwise group comparisons.",
 )
 class PostHocTestsNode:
-    """
-    Performs post-hoc multiple comparison tests following significant ANOVA results.
+    """Performs post-hoc multiple comparison tests following significant ANOVA results.
 
     This node automatically runs one-way ANOVA first, then conducts pairwise comparisons
     using Tukey HSD or Holm-Bonferroni methods if overall differences are significant.
